@@ -1,0 +1,1135 @@
+<!doctype html>
+<html lang="ja" translate="no">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="utf-8">
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Low Runner 66 — Concept Store</title>
+<meta name="description" content="Unofficial concept store page: a 3D carousel of best sellers behind sliding paper doors, then a regular storefront (categories, featured model, product grid, journal), in a washi-paper Japanese setting. Built with Three.js and GSAP.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Shippori+Mincho:wght@500;700;800&family=Yuji+Boku&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#ebe3d2;--shop:#fbfaf7;--stage:#f1eee7;--ink:#232220;--mute:#7a7366;--sun:#c13a33;--gold:#a87a12;--accent:#b4820a;--line:#23222026;--u:4px;
+ --num:"Archivo","Helvetica Neue",Arial,sans-serif;--jp:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;--min:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--shop);scroll-behavior:smooth}
+body{background:var(--shop);color:var(--ink);font-family:var(--jp);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+/* the painted washi lives only in the hero; everything below it is a flat, clean ground */
+.hero{position:relative;height:100svh;min-height:640px;overflow:hidden;background:var(--paper)}
+#bg{position:absolute;inset:0;width:100%;height:100%;z-index:0;display:block}
+#gl{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y;z-index:2}
+.top{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;justify-content:space-between;padding:calc(var(--u)*6) calc(var(--u)*10);z-index:5}
+.brand{text-shadow:0 0 12px var(--paper),0 0 4px var(--paper)}
+.brand b{display:block;font:700 14px var(--num);letter-spacing:.42px}
+.brand span{display:block;font:400 11px var(--num);letter-spacing:.7px;color:var(--mute);text-transform:uppercase;margin-top:2px}
+.pill-nav{display:flex;gap:calc(var(--u)*1);padding:calc(var(--u)*1);border-radius:60px;background:#fffaf0c4;backdrop-filter:blur(10px);box-shadow:0 8px 30px #23222014}
+.pill-nav a{font:500 12px var(--num);letter-spacing:.42px;color:var(--ink);text-decoration:none;padding:calc(var(--u)*2.5) calc(var(--u)*5);border-radius:40px;transition:background .2s,color .2s}
+.pill-nav a:hover,.pill-nav a.on{background:var(--ink);color:#fff}
+.cta{font:500 12px/1 var(--num);letter-spacing:.7px;text-transform:uppercase;color:#fff;background:var(--ink);padding:calc(var(--u)*4) calc(var(--u)*7);border-radius:60px;text-decoration:none;transition:transform .2s,background .2s}
+.cta:hover,.cta:focus-visible{transform:translateY(-2px);background:#000;outline:2px solid var(--gold);outline-offset:3px}
+/* section heading + tabs, in the spirit of the official best-seller block */
+.head{position:absolute;left:50%;top:calc(var(--u)*24);transform:translateX(-50%);text-align:center;z-index:5}
+.head h2{font:700 18px var(--jp);letter-spacing:.42px}
+.head h2 small{display:block;font:500 11px var(--num);letter-spacing:.7px;color:var(--mute);text-transform:uppercase;margin-top:4px}
+.tabs{display:flex;gap:calc(var(--u)*2);margin-top:calc(var(--u)*4);justify-content:center;flex-wrap:wrap}
+.tabs button{font:700 12px var(--jp);letter-spacing:.42px;color:var(--ink);background:#fffaf0a8;border:1px solid var(--line);border-radius:40px;padding:calc(var(--u)*2) calc(var(--u)*4);cursor:pointer;transition:background .2s,color .2s,transform .2s}
+.tabs button{white-space:nowrap}
+.tabs button:hover{transform:translateY(-1px)}
+.tabs button[aria-selected=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tabs button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.vtext{position:absolute;right:calc(var(--u)*7);top:calc(var(--u)*30);z-index:5;display:flex;flex-direction:column;align-items:center;gap:calc(var(--u)*3);pointer-events:none}
+.vt-fallback{writing-mode:vertical-rl;font:700 clamp(18px,2vw,26px)/1.8 var(--min);letter-spacing:.35em;color:var(--ink)}
+.vtext canvas{display:block;height:min(54vh,480px);width:auto;mix-blend-mode:multiply;opacity:.92}
+.vtext.inked .vt-fallback{display:none}
+.vtext small{font:500 10px var(--num);letter-spacing:.7px;color:var(--mute);text-transform:uppercase}
+.cap{position:absolute;left:calc(var(--u)*10);bottom:calc(var(--u)*10);z-index:5;max-width:min(40vw,420px)}
+.cap .no{font:600 11px var(--num);letter-spacing:.7px;text-transform:uppercase;color:var(--accent);transition:color .8s}
+.cap .no i{font-style:normal;color:var(--mute);margin-left:calc(var(--u)*3)}
+.cap h1{font:800 clamp(30px,3.6vw,52px)/1.15 var(--min);letter-spacing:.04em;margin-top:calc(var(--u)*2);overflow:hidden;white-space:nowrap}
+.cap h1 span{display:inline-block;will-change:transform}
+.cap p{font:400 13px/20px var(--num);letter-spacing:.42px;color:var(--mute);margin-top:calc(var(--u)*3)}
+.ctrl{position:absolute;left:50%;bottom:calc(var(--u)*10);transform:translateX(-50%);display:flex;align-items:center;gap:calc(var(--u)*6);z-index:5;font:500 13px var(--num);letter-spacing:.42px}
+.ctrl button{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:#fffaf0b0;color:var(--ink);font:500 18px var(--num);cursor:pointer;transition:background .2s,transform .2s}
+.ctrl button:hover,.ctrl button:focus-visible{background:var(--ink);color:#fff;transform:scale(1.06);outline:none}
+.hint{position:absolute;right:calc(var(--u)*10);bottom:calc(var(--u)*10);z-index:5;font:500 11px/1.7 var(--num);letter-spacing:.7px;text-transform:uppercase;color:var(--mute);text-align:right}
+@media (max-width:760px){.top{padding:calc(var(--u)*4) calc(var(--u)*5)}.pill-nav{display:none}.head{top:calc(var(--u)*20)}.vtext{display:none}.cap{left:calc(var(--u)*5);bottom:calc(var(--u)*28);max-width:80vw}.ctrl{bottom:calc(var(--u)*10)}.hint{display:none}.cta{padding:calc(var(--u)*3) calc(var(--u)*5)}}
+/* ---------- the shop below the hero: a regular storefront, kept quiet. Hairlines, no shadows, no radius except the one black pill (as on the official site) ---------- */
+:root{--wrap:1560px;--gut:clamp(20px,4vw,48px);--hair:#23222024}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 var(--gut)}
+.sec{padding-top:clamp(80px,10vw,140px);scroll-margin-top:56px}
+.sh{display:flex;align-items:baseline;justify-content:space-between;gap:24px;margin-bottom:clamp(28px,3.6vw,52px)}
+.sh h2{font:800 clamp(26px,3.1vw,42px)/1.15 var(--min);letter-spacing:.06em}
+.sh h2 small{font:500 12px var(--num);letter-spacing:.42px;color:var(--mute);margin-left:16px;white-space:nowrap}
+.lnk{font:700 12px/1 var(--num);letter-spacing:.7px;text-transform:uppercase;color:var(--ink);text-decoration:none;display:inline-flex;align-items:center;gap:10px;padding-bottom:6px;background:linear-gradient(var(--accent),var(--accent)) 0 100%/100% 1px no-repeat;transition:background-size .25s}
+.lnk:hover,.lnk:focus-visible{background-size:100% 2px;outline:none}
+.lnk svg{width:12px;height:12px}
+.chev{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.js-rv .rv{opacity:0;transform:translateY(14px);transition:opacity .8s ease,transform .9s cubic-bezier(.2,.7,.2,1)}
+.js-rv .rv.in{opacity:1;transform:none}
+/* sticky header: appears once the hero is behind you */
+.gnav{position:fixed;left:0;right:0;top:0;z-index:50;height:60px;display:flex;align-items:center;justify-content:space-between;gap:32px;padding:0 var(--gut);background:#fbfaf7e6;-webkit-backdrop-filter:blur(14px) saturate(1.15);backdrop-filter:blur(14px) saturate(1.15);border-bottom:1px solid var(--hair);transform:translateY(-101%);transition:transform .5s cubic-bezier(.2,.7,.2,1);visibility:hidden}
+.gnav.show{transform:none;visibility:visible}
+.gn-brand{display:flex;flex-direction:column;text-decoration:none;color:var(--ink);min-width:150px}
+.gn-brand b{font:700 14px var(--num);letter-spacing:.42px}
+.gn-brand span{font:400 10px var(--num);letter-spacing:.7px;color:var(--mute);text-transform:uppercase;margin-top:1px}
+.gn-links{display:flex;gap:clamp(16px,2.4vw,36px)}
+.gn-links a{font:700 12px/1 var(--num);letter-spacing:.7px;text-transform:uppercase;color:var(--ink);text-decoration:none;padding:8px 0;background:linear-gradient(var(--accent),var(--accent)) 0 100%/0 1px no-repeat;transition:background-size .3s}
+.gn-links a:hover,.gn-links a:focus-visible{background-size:100% 1px;outline:none}
+.gn-ico{display:flex;gap:2px;min-width:150px;justify-content:flex-end}
+.gn-ico a{position:relative;width:40px;height:40px;display:grid;place-items:center;color:var(--ink);border-radius:50%;transition:background .2s}
+.gn-ico a:hover,.gn-ico a:focus-visible{background:#2322201a;outline:none}
+.gn-ico svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.gn-ico i{position:absolute;right:3px;top:3px;font:600 9px/14px var(--num);font-style:normal;min-width:14px;height:14px;border-radius:7px;background:var(--ink);color:#fff;text-align:center}
+/* categories: a quiet typographic index, no icons. Where a photo has been listed (see PHOTOS below) the cell turns into a photo tile instead */
+.cats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
+.cat{position:relative;display:flex;flex-direction:column;justify-content:space-between;min-height:clamp(190px,17vw,260px);padding:22px clamp(18px,2vw,32px) 24px;text-decoration:none;color:var(--ink);border-left:1px solid var(--hair);transition:background .35s;-webkit-tap-highlight-color:transparent}
+.cat:first-child{border-left:0}
+.cat::before{content:"";position:absolute;left:0;right:0;top:-1px;height:2px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+.cat:hover,.cat:focus-visible{background:var(--stage);outline:none}
+.cat:hover::before,.cat:focus-visible::before{transform:none}
+.cat .cc{font:500 12px var(--num);letter-spacing:.42px;color:var(--mute)}
+.cat .cen{display:block;font:300 clamp(26px,2.9vw,46px)/1.05 var(--num);letter-spacing:-.012em}
+.cat .cjp{display:flex;align-items:center;justify-content:space-between;margin-top:12px;font:700 13px/1 var(--min);letter-spacing:.14em;color:var(--mute)}
+.cat .cjp svg{opacity:0;transform:translateX(-6px);transition:opacity .3s,transform .3s;color:var(--ink)}
+.cat:hover .cjp svg,.cat:focus-visible .cjp svg{opacity:1;transform:none}
+/* featured model: picture left, copy right, as on the official home page */
+.feat{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(32px,6vw,96px);align-items:center}
+.ft-stage{position:relative;aspect-ratio:1/1;display:grid;grid-template:minmax(0,1fr)/minmax(0,1fr);place-items:center;background:color-mix(in srgb,var(--c,#e0a82e) 11%,var(--stage));border:1px solid var(--hair);transition:background .8s;overflow:hidden}
+.ft-stage::after{content:"";position:absolute;left:14%;right:14%;top:63%;height:7%;background:radial-gradient(50% 50% at 50% 50%,#2a1c0e55,transparent 70%);filter:blur(6px)}
+.ft-stage #ftImg{position:relative;z-index:1;width:auto;height:auto;max-width:92%;max-height:84%;object-fit:contain;transition:opacity .14s}
+.ft-hint{display:none;position:absolute;left:22px;top:18px;z-index:2;font:500 11px/1.4 var(--jp);letter-spacing:.3px;color:var(--mute)}
+@media (hover:hover) and (pointer:fine){.ft-hint{display:block}.ft-stage.is-model .ft-hint{display:none}}
+.ft-media{min-width:0}
+.ft-cap{position:absolute;left:22px;bottom:18px;z-index:2;font:500 12px var(--num);letter-spacing:.42px;color:var(--mute)}
+.ft-cap b{font:800 20px var(--min);letter-spacing:.06em;color:var(--ink);margin-right:10px}
+.ft-thumbs{display:flex;gap:8px;margin-top:12px;--c:#e0a82e}
+.ft-thumbs button{flex:1 1 0;min-width:0;max-width:72px;height:auto;aspect-ratio:4/3;border:1px solid var(--hair);background:color-mix(in srgb,var(--c,#e0a82e) 8%,var(--stage));padding:4px;cursor:pointer;transition:border-color .2s,background .2s}
+.ft-thumbs button img{width:100%;height:100%;object-fit:contain;display:block}
+.ft-thumbs button[aria-pressed=true]{border-color:var(--ink)}
+.ft-thumbs button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.ft-copy h2{font:300 clamp(30px,3.2vw,46px)/1.1 var(--num);letter-spacing:.02em}
+.ft-jp{font:800 clamp(18px,1.6vw,22px)/1.5 var(--min);letter-spacing:.08em;margin-top:18px}
+.ft-lede{font:400 14px/1.95 var(--jp);letter-spacing:.2px;color:#4a463e;margin-top:14px;max-width:44ch}
+.spec{margin-top:30px;border-top:1px solid var(--hair)}
+.spec div{display:grid;grid-template-columns:96px 1fr;gap:16px;padding:14px 0;border-bottom:1px solid var(--hair);font:500 13px/1.6 var(--jp);letter-spacing:.2px}
+.spec dt{color:var(--mute);font-size:12px}
+.spec .sw{display:inline-flex;gap:6px;margin-left:10px;vertical-align:middle}
+.spec .sw u{width:11px;height:11px;border-radius:50%;background:var(--c);display:block;box-shadow:inset 0 0 0 1px #00000026}
+.ft-cta{display:flex;align-items:center;gap:28px;margin-top:34px;flex-wrap:wrap}
+.ft-cta .cta{display:inline-flex;align-items:center;gap:12px;padding:18px 30px;font-weight:600}
+.ft-cta .cta svg{stroke:#fff}
+/* product grid */
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(28px,3.2vw,52px) clamp(18px,2.4vw,36px)}
+.pc{display:block;text-decoration:none;color:var(--ink);-webkit-tap-highlight-color:transparent}
+.pc-img{position:relative;display:block;aspect-ratio:5/4;background:color-mix(in srgb,var(--c) 9%,var(--stage));border:1px solid var(--hair);overflow:hidden;transition:border-color .3s}
+.pc-img::after{content:"";position:absolute;left:16%;right:16%;top:63%;height:8%;background:radial-gradient(50% 50% at 50% 50%,#2a1c0e47,transparent 70%);filter:blur(5px)}
+.pc-img img.v{position:absolute;left:7%;top:8%;width:86%;height:77%;object-fit:contain;z-index:1;opacity:0;transition:opacity .22s}
+.pc-img img.v.on{opacity:1}
+.pc:hover .pc-img,.pc:focus-visible .pc-img{border-color:#23222060}
+.pc:focus-visible{outline:none}
+.pc-tag{position:absolute;left:14px;top:14px;z-index:2;font:600 10px/1 var(--num);font-style:normal;letter-spacing:.7px;color:var(--ink);background:#fff;padding:6px 8px 5px;border:1px solid var(--hair)}
+.pc-meta{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-top:16px}
+.pc-meta b{display:block;font:800 18px/1.3 var(--min);letter-spacing:.06em}
+.pc-meta i{display:block;font:400 12px/1.5 var(--num);font-style:normal;letter-spacing:.42px;color:var(--mute);margin-top:2px}
+.pc-price{font:500 14px var(--num);letter-spacing:.42px;white-space:nowrap;padding-top:2px}
+.pc-dots{display:flex;gap:6px;margin-top:12px}
+.pc-dots u{width:10px;height:10px;border-radius:50%;background:var(--c);display:block;box-shadow:inset 0 0 0 1px #00000024;opacity:.55;transition:opacity .2s}
+.pc-dots u.on{opacity:1;box-shadow:0 0 0 2px var(--shop),0 0 0 3px var(--ink)}
+/* photography: model photos take over wherever tools/photos.py has listed one; without it the page keeps the shoe-only stage and the line drawings */
+.cat .cpw{display:none}
+.cats:has(.cat.ph){border:0;column-gap:clamp(12px,1.4vw,22px)}
+.cat.ph{padding:0;border-left:0;min-height:0;justify-content:flex-start;gap:16px}
+.cat.ph .cpw{display:block;overflow:hidden;background:var(--stage)}
+.cat.ph .cpw img{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;transition:transform 1.1s cubic-bezier(.2,.7,.2,1)}
+.cat.ph:hover .cpw img,.cat.ph:focus-visible .cpw img{transform:scale(1.035)}
+.cat.ph .cc{position:absolute;left:12px;top:12px;z-index:2;font:600 10px/1 var(--num);letter-spacing:.7px;color:var(--ink);background:#fff;padding:6px 8px 5px;border:1px solid var(--hair)}
+.cat.ph:hover,.cat.ph:focus-visible{background:none}
+.cats .cat.ph{border:0}
+.cats:has(.cat.ph){row-gap:clamp(26px,3vw,44px)}
+.cat.ph .cen{font-size:clamp(22px,2vw,30px)}
+.cat.ph::before{display:none}
+@media (min-width:1001px){.feat:has(.ft-stage.is-model){grid-template-columns:minmax(0,6fr) minmax(0,5fr)}}
+.ft-stage.is-model{aspect-ratio:4/5;background:var(--stage)}
+.ft-stage.is-model::after{display:none}
+.ft-stage.is-model #ftImg{position:absolute;inset:0;width:100%;height:100%;max-width:none;max-height:none;object-fit:cover}
+.ft-stage.is-model .ft-cap{left:18px;bottom:16px;background:#fff;padding:9px 12px 8px;border:1px solid var(--hair)}
+.ft-thumbs button[hidden]{display:none}
+.ft-thumbs button[data-v=model] img{object-fit:cover}
+.look{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:clamp(14px,2vw,32px);align-items:start}
+.look figure:nth-child(2){margin-top:clamp(28px,5vw,80px)}
+.look img{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;background:var(--stage)}
+.look figcaption{font:500 12px/1.6 var(--num);letter-spacing:.42px;color:var(--mute);margin-top:12px}
+.look figcaption b{font:800 15px var(--min);letter-spacing:.06em;color:var(--ink);margin-right:10px}
+@media (max-width:700px){.look{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 calc(var(--gut)*-1);padding:0 var(--gut);scrollbar-width:none}.look::-webkit-scrollbar{display:none}.look figure{flex:0 0 78%;scroll-snap-align:start}.look figure:nth-child(2){margin-top:0}}
+/* language switch (JP is the page; EN replaces every piece of text that carries data-en) */
+.lang{display:inline-flex;border:1px solid var(--hair)}
+.lang button{border:0;background:none;cursor:pointer;font:700 11px/1 var(--num);letter-spacing:.7px;padding:9px 12px;color:var(--ink);transition:background .2s,color .2s}
+.lang button[aria-pressed=true]{background:var(--ink);color:#fff}
+.lang button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.top-r{display:flex;align-items:center;gap:calc(var(--u)*4)}
+.top .lang{border:0;border-radius:60px;background:#fffaf0c4;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);padding:calc(var(--u)*1);gap:2px}
+.top .lang button{border-radius:40px;padding:calc(var(--u)*2.5) calc(var(--u)*3.5)}
+.gn-ico .lang{align-self:center;margin-right:10px}
+html[lang=en] .sh h2,html[lang=en] .nl h2{font-family:var(--num);font-weight:300;letter-spacing:.005em}
+html[lang=en] .sh h2{font-size:clamp(28px,3.3vw,46px)}
+html[lang=en] .nl h2{font-size:clamp(24px,2.5vw,34px);line-height:1.35;word-break:normal}
+html[lang=en] .ft-jp{font-family:var(--num);font-weight:600;letter-spacing:.01em}
+html[lang=en] .pc-meta b,html[lang=en] .mmeta h3,html[lang=en] .mcard h3,html[lang=en] .cap h1{font-family:var(--num);font-weight:500;letter-spacing:0}
+html[lang=en] .mmeta h3{font-weight:300;font-size:clamp(28px,3vw,42px);line-height:1.15}
+html[lang=en] .mcard h3{font-size:clamp(19px,1.6vw,23px);line-height:1.3}
+html[lang=en] .cap h1{font-weight:600;line-height:1.1}
+html[lang=en] .svc b,html[lang=en] .ft-lede,html[lang=en] .mlede,html[lang=en] .svc span{letter-spacing:.1px}
+html[lang=en] .men{font-family:var(--jp);letter-spacing:.2em}
+/* service strip */
+.svc{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
+.svc li{display:flex;gap:18px;align-items:flex-start;padding:30px clamp(14px,2vw,28px);border-left:1px solid var(--hair)}
+.svc li:first-child{border-left:0;padding-left:0}
+.svc svg{flex:none;width:30px;height:30px;fill:none;stroke:var(--ink);stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;margin-top:2px}
+.svc b{display:block;font:700 14px/1.4 var(--jp);letter-spacing:.3px}
+.svc span{display:block;font:400 12px/1.7 var(--jp);color:var(--mute);margin-top:3px}
+/* newsletter */
+.nl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,6vw,96px);align-items:end}
+.nl h2{font:800 clamp(24px,2.6vw,34px)/1.45 var(--min);letter-spacing:.06em;text-wrap:balance;word-break:keep-all}
+.nl p.s{font:400 13px/1.8 var(--jp);color:var(--mute);margin-top:12px}
+.nl form{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.nl input{flex:1 1 240px;min-width:0;font:400 14px var(--jp);letter-spacing:.3px;color:var(--ink);background:transparent;border:0;border-bottom:1px solid var(--ink);padding:14px 2px;border-radius:0}
+.nl input::placeholder{color:#7a736699}
+.nl input:focus-visible{outline:none;border-bottom-color:var(--accent);box-shadow:0 1px 0 var(--accent)}
+.nl .cta{border:0;cursor:pointer;padding:18px 30px;font-weight:600}
+.nl .msg{flex-basis:100%;font:500 12px/1.6 var(--jp);color:var(--mute);min-height:1.6em}
+/* footer */
+.foot{margin-top:clamp(80px,10vw,140px);padding:clamp(48px,6vw,80px) 0 28px;border-top:1px solid var(--hair);background:var(--stage)}
+.ftop{display:grid;grid-template-columns:1.6fr repeat(3,1fr);gap:clamp(24px,4vw,64px)}
+.fb b{display:block;font:700 16px var(--num);letter-spacing:.42px}
+.fb p{font:400 12px/1.9 var(--jp);color:var(--mute);margin-top:10px;max-width:40ch}
+.foot h3{font:700 12px/1 var(--num);letter-spacing:.7px;text-transform:uppercase;margin-bottom:16px}
+.foot nav a{display:block;font:400 13px/1 var(--jp);letter-spacing:.3px;color:var(--ink);text-decoration:none;padding:7px 0;opacity:.78;transition:opacity .2s}
+.foot nav a:hover,.foot nav a:focus-visible{opacity:1;text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:5px;outline:none}
+.fbot{margin-top:clamp(40px,5vw,64px);padding-top:22px;border-top:1px solid var(--hair);display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font:400 12px/1.8 var(--num);letter-spacing:.3px;color:var(--mute)}
+.fbot p{max-width:78ch}
+@media (max-width:1000px){.feat{grid-template-columns:1fr}.pgrid{grid-template-columns:repeat(2,1fr)}.cats{grid-template-columns:repeat(2,1fr)}.cat:nth-child(3){border-left:0}.cat:nth-child(n+3){border-top:1px solid var(--hair)}.svc{grid-template-columns:repeat(2,1fr)}.svc li:nth-child(3){border-left:0;padding-left:0}.svc li:nth-child(n+3){border-top:1px solid var(--hair)}.nl{grid-template-columns:1fr}.ftop{grid-template-columns:1fr 1fr}.gn-links{display:none}.gn-brand,.gn-ico{min-width:0}}
+@media (max-width:560px){.cat .cen{font-size:21px}.cat{min-height:150px}.pgrid{grid-template-columns:1fr 1fr;gap:28px 14px}.pc-meta b{font-size:15px}.pc-price{font-size:12px}.pc-meta{flex-direction:column;gap:4px}.sh{flex-direction:column;align-items:flex-start;gap:14px}.ft-thumbs button{width:52px;height:40px}.svc{grid-template-columns:1fr}.svc li{border-left:0;padding-left:0;border-top:1px solid var(--hair)}.svc li:first-child{border-top:0}.ftop{grid-template-columns:1fr 1fr}.fb{grid-column:1/-1}}
+@media (prefers-reduced-motion:reduce){.js-rv .rv{opacity:1;transform:none;transition:none}.gnav{transition:none}.cat::before{transition:none}*{scroll-behavior:auto!important}}
+/* ---------- magazine: an index with a lead column and three more, and a reader that opens over the page ---------- */
+.sh-note{font:400 12px/1.7 var(--jp);letter-spacing:.3px;color:var(--mute);max-width:34ch;text-align:right}
+.mlead{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(28px,5vw,80px);align-items:center;padding-bottom:clamp(40px,5vw,72px);border-bottom:1px solid var(--hair)}
+.mcover{position:relative;display:block;aspect-ratio:4/3;overflow:hidden;border:1px solid var(--hair);background:var(--stage);text-decoration:none;color:var(--ink);transition:border-color .3s}
+.mcover:hover,.mcover:focus-visible{border-color:#23222066;outline:none}
+.mcover>*{transition:transform .9s cubic-bezier(.2,.7,.2,1)}
+.mcover:hover>.mc-in,.mcover:focus-visible>.mc-in{transform:scale(1.025)}
+.mtag{display:flex;align-items:baseline;gap:14px;font:600 11px/1 var(--num);letter-spacing:.7px;text-transform:uppercase}
+.mtag b{font:800 15px/1 var(--min);letter-spacing:.06em;text-transform:none}
+.mtag time{margin-left:auto;font-weight:500;color:var(--mute);letter-spacing:.42px}
+.mmeta h3{font:800 clamp(28px,3.2vw,44px)/1.35 var(--min);letter-spacing:.06em;margin-top:20px;text-wrap:balance}
+.mmeta h3 a,.mcard h3 a{color:inherit;text-decoration:none}
+.men{font:400 13px/1.6 var(--num);letter-spacing:.3px;color:var(--mute);margin-top:6px}
+.mlede{font:400 14px/2 var(--jp);letter-spacing:.2px;color:#4a463e;margin-top:20px;max-width:42ch}
+.mby{display:flex;gap:18px;align-items:center;margin-top:22px;font:400 12px var(--jp);letter-spacing:.3px;color:var(--mute)}
+.mmeta .cta{display:inline-flex;align-items:center;gap:12px;margin-top:30px;padding:16px 28px;font-weight:600}
+.mmeta .cta svg{stroke:#fff}
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(24px,3vw,48px);padding-top:clamp(36px,4.4vw,64px)}
+.mcard .mcover{aspect-ratio:4/3}
+.mcard .mtag{margin-top:18px}
+.mcard h3{font:800 clamp(19px,1.7vw,24px)/1.45 var(--min);letter-spacing:.06em;margin-top:12px}
+.mcard .mlede{font-size:13px;line-height:1.9;margin-top:10px;max-width:none}
+.mcard .mby{margin-top:14px}
+/* covers: made of what the concept is made of */
+.mc-in{position:absolute;inset:0}
+.mc-colour{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,1fr);gap:1px;background:var(--hair)}
+.mc-colour span{position:relative;display:block;overflow:hidden;background:color-mix(in srgb,var(--c) 13%,var(--stage))}
+.mc-colour b{position:absolute;left:14px;top:12px;writing-mode:vertical-rl;font:800 clamp(12px,1.25vw,17px)/1 var(--min);letter-spacing:.2em}
+.mc-colour img{position:absolute;right:3%;top:50%;width:72%;height:auto;transform:translateY(-50%)}
+.mc-chip{position:absolute;right:12px;bottom:12px;z-index:2;font:800 13px/1 var(--min);letter-spacing:.2em;background:#fff;border:1px solid var(--hair);padding:8px 10px 7px}
+.mc-shoji{background:radial-gradient(70% 70% at 50% 45%,#fffaea,#eadfc2);overflow:hidden}
+.mc-shoji img{position:absolute;left:13%;top:51%;width:74%;height:auto;transform:translateY(-50%);filter:brightness(0) blur(7px);opacity:.4}
+.mc-shoji::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 9px #4d3220,inset 0 0 22px 9px #00000052;background:linear-gradient(90deg,transparent calc(100% - 3px),#3b2415 calc(100% - 3px)) 0 0/25% 100%,linear-gradient(transparent calc(100% - 3px),#3b2415 calc(100% - 3px)) 0 0/100% 33.3333%}
+.mc-ink canvas{display:block;width:100%;height:100%}
+.mc-seal{background:var(--stage);display:grid;place-items:center}
+.mc-seal i{display:grid;place-items:center;width:30%;aspect-ratio:1;background:#b4322a;color:#f8efe0;font:400 clamp(34px,5.4vw,84px)/.96 "Yuji Boku","Shippori Mincho",serif;font-style:normal;text-align:center;transform:rotate(-3deg);box-shadow:inset 0 0 0 3px #b4322a,inset 0 0 0 5px #f8efe0aa;mix-blend-mode:multiply}
+.mc-seal small{position:absolute;left:16px;bottom:14px;font:500 11px var(--num);letter-spacing:.7px;color:var(--mute)}
+/* the reader */
+html.rd-lock{overflow:hidden}
+.reader{position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;background:var(--shop);transform:translateY(102%);visibility:hidden;transition:transform .7s cubic-bezier(.2,.7,.2,1),visibility 0s .7s}
+.reader.open{transform:none;visibility:visible;transition:transform .7s cubic-bezier(.2,.7,.2,1),visibility 0s}
+.rd-bar{flex:none;display:flex;align-items:center;justify-content:space-between;gap:16px;height:60px;padding:0 var(--gut);border-bottom:1px solid var(--hair);background:#fbfaf7e6;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.rd-close{display:inline-flex;align-items:center;gap:10px;border:0;background:none;cursor:pointer;font:700 12px/1 var(--num);letter-spacing:.7px;text-transform:uppercase;color:var(--ink);padding:10px 0;background:linear-gradient(var(--accent),var(--accent)) 0 100%/0 1px no-repeat;transition:background-size .3s}
+.rd-close:hover,.rd-close:focus-visible{background-size:100% 1px;outline:none}
+.rd-close svg{width:12px;height:12px;transform:scaleX(-1)}
+.rd-id{font:600 11px/1 var(--num);letter-spacing:.7px;text-transform:uppercase;color:var(--mute)}
+.rd-lang{display:flex;border:1px solid var(--hair)}
+.rd-lang button{border:0;background:none;cursor:pointer;font:700 11px/1 var(--num);letter-spacing:.7px;padding:9px 13px;color:var(--ink);transition:background .2s,color .2s}
+.rd-lang button[aria-pressed=true]{background:var(--ink);color:#fff}
+.rd-lang button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.rd-scroll{flex:1;overflow-y:auto;overscroll-behavior:contain;scroll-behavior:auto}
+.rd-art{max-width:1180px;margin:0 auto;padding:clamp(40px,6vw,96px) var(--gut) 0;display:grid;grid-template-columns:minmax(140px,1fr) minmax(0,2.3fr);gap:clamp(32px,6vw,104px)}
+.rd-side{position:sticky;top:28px;align-self:start;display:flex;gap:clamp(18px,2.4vw,34px);height:min(74vh,660px)}
+.rd-vt{writing-mode:vertical-rl;font:800 clamp(34px,4.2vw,58px)/1.6 var(--min);letter-spacing:.14em}
+.rd-vm{writing-mode:vertical-rl;font:600 11px/1 var(--num);letter-spacing:.5em;text-transform:uppercase;color:var(--mute);padding-top:6px}
+.rd-main{min-width:0;padding-bottom:clamp(48px,6vw,88px)}
+.rd-ht{display:none;font:300 clamp(30px,3.6vw,50px)/1.18 var(--num);letter-spacing:.01em;text-wrap:balance}
+.rd-sub{font:400 13px/1.6 var(--num);letter-spacing:.3px;color:var(--mute);margin-bottom:26px}
+.rd-main .deck{font:800 clamp(18px,1.6vw,22px)/1.9 var(--min);letter-spacing:.07em;padding-bottom:30px;margin-bottom:34px;border-bottom:1px solid var(--hair);max-width:34em}
+.rd-main p{font:500 16px/2.25 var(--min);letter-spacing:.05em;color:#2f2c27;max-width:34em;margin-bottom:1.2em}
+.rd-main .pull{font:800 clamp(22px,2.2vw,30px)/1.7 var(--min);letter-spacing:.08em;border-left:2px solid var(--accent);padding:2px 0 2px 24px;margin:2.2em 0;color:var(--ink);max-width:22em}
+.clr{display:grid;grid-template-columns:minmax(150px,230px) 1fr;gap:clamp(18px,2.4vw,34px);align-items:center;padding:30px 0;border-top:1px solid var(--hair)}
+.clr>img{width:100%;height:auto;background:color-mix(in srgb,var(--c) 14%,var(--stage));border:1px solid var(--hair);padding:10px 8px}
+.clr h2{display:flex;align-items:center;gap:12px;font:800 clamp(20px,1.9vw,26px)/1.3 var(--min);letter-spacing:.08em;margin-bottom:6px}
+.clr h2::before{content:"";width:14px;height:14px;border-radius:50%;background:var(--c);box-shadow:inset 0 0 0 1px #00000026;flex:none}
+.clr h2 small{font:400 12px var(--num);letter-spacing:.3px;color:var(--mute)}
+.clr p{font-size:15px;line-height:2.1;margin:8px 0 0}
+.rd-main .clr+p,.rd-main .clr:last-of-type{margin-bottom:0}
+.rd-end{margin-top:2.6em;padding-top:26px;border-top:1px solid var(--hair)}
+.src{list-style:none;margin-top:44px;padding-top:18px;border-top:1px solid var(--hair);font:400 12px/1.9 var(--jp);color:var(--mute)}
+.src li{padding-left:0}
+.src a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:4px}
+.rd-next{display:block;margin:clamp(28px,4vw,56px) auto 0;max-width:1180px;padding:30px var(--gut) clamp(48px,6vw,88px);text-decoration:none;color:var(--ink);border-top:1px solid var(--hair)}
+.rd-next small{display:block;font:600 11px/1 var(--num);letter-spacing:.7px;text-transform:uppercase;color:var(--mute);margin-bottom:12px}
+.rd-next b{display:flex;align-items:center;justify-content:space-between;gap:24px;font:800 clamp(20px,2.2vw,30px)/1.4 var(--min);letter-spacing:.07em}
+.rd-next:hover svg,.rd-next:focus-visible svg{transform:translateX(5px)}
+.rd-next svg{width:18px;height:18px;flex:none;transition:transform .3s;fill:none;stroke:currentColor;stroke-width:1.5}
+.rd-next:focus-visible{outline:none;background:#ffffff8c}
+.reader .rd-en{display:none}
+.reader[data-lang=en] .rd-ja{display:none}
+.reader[data-lang=en] .rd-en{display:block}
+.reader[data-lang=en] .rd-vt,.reader[data-lang=en] .rd-sub{display:none}
+.reader[data-lang=en] .rd-ht{display:block;margin-bottom:26px}
+.reader[data-lang=en] .rd-main p{font:400 16px/1.95 var(--num);letter-spacing:.1px;color:#3b372f}
+.reader[data-lang=en] .rd-main .deck{font:400 clamp(18px,1.6vw,21px)/1.7 var(--num);letter-spacing:.1px}
+.reader[data-lang=en] .rd-main .pull{font:300 clamp(22px,2.2vw,30px)/1.5 var(--num);letter-spacing:.01em}
+.reader[data-lang=en] .clr h2{font:600 clamp(18px,1.7vw,22px) var(--num);letter-spacing:.02em}
+@media (max-width:1000px){.mlead{grid-template-columns:1fr}.mgrid{grid-template-columns:1fr 1fr}.sh-note{display:none}}
+@media (max-width:900px){.rd-art{grid-template-columns:1fr;gap:28px}.rd-side{position:static;height:auto}.rd-vt{writing-mode:horizontal-tb;font-size:clamp(28px,7vw,40px);letter-spacing:.08em;line-height:1.4}.rd-vm{display:none}.clr{grid-template-columns:120px 1fr}}
+@media (max-width:560px){.mgrid{grid-template-columns:1fr}.clr{grid-template-columns:1fr}.clr>img{max-width:260px}.rd-id{display:none}}
+@media (prefers-reduced-motion:reduce){.reader,.reader.open{transition:none}.mcover>*{transition:none}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body>
+<header class="gnav" id="gnav" aria-label="Main">
+ <a class="gn-brand" href="#hero"><b>Low Runner 66</b><span>Concept store</span></a>
+ <nav class="gn-links"><a href="#feature">Featured</a><a href="#shop">Shoes</a><a href="#cats">Apparel</a><a href="#cats">Bags</a><a href="#cats">Accessories</a><a href="#magazine">Magazine</a></nav>
+ <div class="gn-ico">
+  <div class="lang" role="group" aria-label="Language"><button type="button" data-l="ja" aria-pressed="true">JP</button><button type="button" data-l="en" aria-pressed="false">EN</button></div>
+  <a href="#" aria-label="Search"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></a>
+  <a href="#" aria-label="Account"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c.6-4.4 4-7 8-7s7.4 2.6 8 7"/></svg></a>
+  <a href="#" aria-label="Bag"><svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6.5a3 3 0 016 0V8"/></svg><i>0</i></a>
+ </div>
+</header>
+<section class="hero" id="hero">
+ <canvas id="bg" aria-hidden="true"></canvas>
+ <canvas id="gl" aria-label="Carousel of best sellers"></canvas>
+ <header class="top">
+  <div class="brand"><b>Low Runner 66</b><span>Concept store</span></div>
+  <nav class="pill-nav" aria-label="Sections"><a class="on" href="#hero">Featured</a><a href="#cats">Categories</a><a href="#magazine">Magazine</a></nav>
+  <div class="top-r"><div class="lang" role="group" aria-label="Language"><button type="button" data-l="ja" aria-pressed="true">JP</button><button type="button" data-l="en" aria-pressed="false">EN</button></div><a class="cta" href="#shop">Shop</a></div>
+ </header>
+ <div class="head"><h2><span data-en="Best sellers">トップセラー</span><small><span data-en="トップセラー">Best sellers</span></small></h2>
+  <div class="tabs" role="tablist" id="tabs"><button role="tab" aria-selected="true" data-t="shoes"><span data-en="Shoes">シューズ</span></button><button role="tab" aria-selected="false" data-t="apparel"><span data-en="Apparel">アパレル</span></button><button role="tab" aria-selected="false" data-t="bags"><span data-en="Bags">バッグ</span></button><button role="tab" aria-selected="false" data-t="acc"><span data-en="Accessories">アクセサリー</span></button></div></div>
+ <div class="vtext" id="vtext" aria-hidden="true"><span class="vt-fallback">足もとに、日本の美意識を。</span><small>Concept</small></div>
+ <div class="cap" id="cap"><div class="no"><span id="capNo">01 / 06</span><i id="capEn">Yamabuki</i></div><h1 id="capName"><span><span data-en="Yamabuki">山吹色</span></span></h1><p id="capDesc">Drag, swipe sideways, or use the arrows.</p></div>
+ <div class="ctrl"><button id="prev" aria-label="Previous">&#8592;</button><span id="ctrlNo">01 / 06</span><button id="next" aria-label="Next">&#8594;</button></div>
+ <div class="hint">Drag / swipe<br>sideways to turn</div>
+</section>
+
+<main>
+<section class="sec" id="cats"><div class="wrap">
+ <div class="sh rv"><h2><span data-en="Categories">カテゴリー</span><small><span data-en="カテゴリー">Shop by category</span></small></h2><a class="lnk" href="#shop"><span data-en="All products">すべての商品</span><svg class="chev" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4"/></svg></a></div>
+ <div class="cats rv">
+  <a class="cat" href="#hero" data-t="shoes"><span class="cc">24 items</span><span class="cpw"><img alt="" width="800" height="1000" decoding="async" loading="lazy"></span>
+   <span><span class="cen">Footwear</span><span class="cjp">シューズ<svg class="chev" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4"/></svg></span></span></a>
+  <a class="cat" href="#hero" data-t="apparel"><span class="cc">38 items</span><span class="cpw"><img alt="" width="800" height="1000" decoding="async" loading="lazy"></span>
+   <span><span class="cen">Apparel</span><span class="cjp">アパレル<svg class="chev" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4"/></svg></span></span></a>
+  <a class="cat" href="#hero" data-t="bags"><span class="cc">12 items</span><span class="cpw"><img alt="" width="800" height="1000" decoding="async" loading="lazy"></span>
+   <span><span class="cen">Bags</span><span class="cjp">バッグ<svg class="chev" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4"/></svg></span></span></a>
+  <a class="cat" href="#hero" data-t="acc"><span class="cc">19 items</span><span class="cpw"><img alt="" width="800" height="1000" decoding="async" loading="lazy"></span>
+   <span><span class="cen">Accessories</span><span class="cjp">アクセサリー<svg class="chev" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4"/></svg></span></span></a>
+ </div>
+</div></section>
+
+<section class="sec" id="feature"><div class="wrap feat">
+ <div class="ft-media rv">
+  <div class="ft-stage" id="ftStage" style="--c:#e0a82e" data-v="right">
+   <img id="ftImg" src="cut/web/side_gold.webp" alt="Low Runner 66" width="1200" height="526" loading="lazy" decoding="async">
+   <span class="ft-hint" data-en="Move the cursor over the shoe to see it from another side">カーソルを動かすと、靴の別の面が見えます</span>
+   <div class="ft-cap" id="ftCap"><b translate="no"><span data-en="Yamabuki">山吹色</span></b>Yamabuki</div>
+  </div>
+  <div class="ft-thumbs" id="ftThumbs"></div>
+ </div>
+ <div class="ft-copy rv">
+  <h2>LOW RUNNER 66</h2>
+  <p class="ft-jp"><span data-en="Slim, low, light.">細く、低く、軽く。</span></p>
+  <p class="ft-lede"><span data-en="Drawn from scratch with 1970s track shoes as a starting point: a thin wedge sole and perforated leather, made light for days spent walking the city.">七〇年代のトラックシューズを手がかりに、ゼロから描き起こした一足。薄いウェッジソールとパンチングのレザーで、街を歩く日のために軽く仕上げました。</span></p>
+  <dl class="spec">
+   <div><dt><span data-en="Upper">アッパー</span></dt><dd><span data-en="Cream leather with perforated panels">クリームレザー、パンチングのパネル</span></dd></div>
+   <div><dt><span data-en="Sole">ソール</span></dt><dd><span data-en="Thin gum-rubber wedge">ガムラバーの薄型ウェッジ</span></dd></div>
+   <div><dt><span data-en="Colours">カラー</span></dt><dd><span data-en="Six">六色</span><span class="sw" id="ftSw"></span></dd></div>
+   <div><dt><span data-en="Price">価格</span></dt><dd><span data-en="¥15,400 (tax incl.)">¥15,400(税込)</span></dd></div>
+  </dl>
+  <div class="ft-cta"><a class="cta" href="#shop"><span data-en="See more">もっと見る</span><svg class="chev" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4"/></svg></a><a class="lnk" href="#" data-soon><span data-en="Size guide">サイズガイド</span></a></div>
+ </div>
+</div></section>
+
+<section class="sec" id="shop"><div class="wrap">
+ <div class="sh rv"><h2><span data-en="Low Runner 66">ロー・ランナー 66</span><small><span data-en="ロー・ランナー 66">Six colourways</span></small></h2><a class="lnk" href="#hero" data-hero><span data-en="See it in the doors">ドアの中で見る</span><svg class="chev" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4"/></svg></a></div>
+ <div class="pgrid" id="pgrid"></div>
+</div></section>
+
+<section class="sec" id="lookbook" hidden><div class="wrap">
+ <div class="sh rv"><h2><span data-en="Lookbook">ルックブック</span><small><span data-en="ルックブック">Lookbook</span></small></h2><p class="sh-note"><span data-en="One shoe in six colours, on the street.">街で履く、六色の一足。</span></p></div>
+ <div class="look rv">
+  <figure data-p="look_1" hidden><img alt="Low Runner 66 in Yamabuki, worn on a quiet street in the morning" width="1200" height="1500" decoding="async" loading="lazy"><figcaption><b translate="no"><span data-en="Yamabuki">山吹色</span></b><span data-en="Morning lane">朝の路地</span></figcaption></figure>
+  <figure data-p="look_2" hidden><img alt="Low Runner 66 in Kon, worn at a crossing in the afternoon" width="1200" height="1500" decoding="async" loading="lazy"><figcaption><b translate="no"><span data-en="Kon">紺色</span></b><span data-en="Crossing">横断歩道</span></figcaption></figure>
+  <figure data-p="look_3" hidden><img alt="Low Runner 66 in Akane, worn on a station platform at dusk" width="1200" height="1500" decoding="async" loading="lazy"><figcaption><b translate="no"><span data-en="Akane">茜色</span></b><span data-en="Platform at dusk">夕方のホーム</span></figcaption></figure>
+ </div>
+</div></section>
+
+<section class="sec" id="magazine"><div class="wrap">
+ <div class="sh rv"><h2><span data-en="Magazine">マガジン</span><small><span data-en="マガジン">Magazine</span></small></h2><p class="sh-note"><span data-en="On colour, and on how it is made.">色のこと、つくりかたのこと。</span><br><span data-en="Read the concept, as columns.">このコンセプトを、コラムで読む。</span></p></div>
+ <article class="mlead rv">
+  <a class="mcover" href="#m-colour" aria-label="六色に、顔料の名前を。" data-en-aria-label="Naming six colourways after Japanese pigments."><div class="mc-in mc-colour">
+   <span style="--c:#e0a82e"><b>山吹</b><img src="cut/web/side_gold.webp" alt="" loading="lazy" decoding="async"></span>
+   <span style="--c:#c4483f"><b>茜</b><img src="cut/web/side_red.webp" alt="" loading="lazy" decoding="async"></span>
+   <span style="--c:#3a5798"><b>紺</b><img src="cut/web/side_navy.webp" alt="" loading="lazy" decoding="async"></span>
+   <span style="--c:#3f7a55"><b>常磐</b><img src="cut/web/side_forest.webp" alt="" loading="lazy" decoding="async"></span>
+   <span style="--c:#d9792f"><b>橙</b><img src="cut/web/side_orange.webp" alt="" loading="lazy" decoding="async"></span>
+   <span style="--c:#74889a"><b>鼠</b><img src="cut/web/side_slate.webp" alt="" loading="lazy" decoding="async"></span>
+  </div><span class="mc-chip"><span data-en="Colour chart">色見本</span></span></a>
+  <div class="mmeta">
+   <p class="mtag"><b>No.01</b>COLOUR<time datetime="2026-10-14">2026.10.14</time></p>
+   <h3><a href="#m-colour"><span data-en="Naming six colourways after Japanese pigments.">六色に、顔料の名前を。</span></a></h3>
+   <p class="men"><span data-en="六色に、顔料の名前を。">Naming six colourways after Japanese pigments.</span></p>
+   <p class="mlede"><span data-en="Yellow, red, blue, green, orange, grey. Why six ordinary colours were given older Japanese names, one by one.">黄、赤、青、緑、橙、灰。ふつうの言い方で通じる六色に、わざわざ昔ながらの名前をつけた理由を、色ごとに。</span></p>
+   <p class="mby"><span data-en="Words and layout　Woncho Chung">文・構成　Woncho Chung</span><span><span data-en="4 min read">読了 約4分</span></span></p>
+   <a class="cta" href="#m-colour"><span data-en="Read">読む</span><svg class="chev" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4"/></svg></a>
+  </div>
+ </article>
+ <div class="mgrid">
+  <article class="mcard rv">
+   <a class="mcover" href="#m-design" aria-label="障子の向こうの一足。" data-en-aria-label="The shoe behind paper."><div class="mc-in mc-shoji"><img src="cut/web/side_gold.webp" alt="" loading="lazy" decoding="async"></div></a>
+   <p class="mtag"><b>No.02</b>DESIGN<time datetime="2026-10-13">2026.10.13</time></p>
+   <h3><a href="#m-design"><span data-en="The shoe behind paper.">障子の向こうの一足。</span></a></h3>
+   <p class="men"><span data-en="障子の向こうの一足。">The shoe behind paper.</span></p>
+   <p class="mlede"><span data-en="Photographs are flat, so seen from an angle the shoe looks thin. So we put the shoe behind paper.">写真は平面だから、斜めから見ると薄く見える。だから靴は、紙の向こうに置くことにした。</span></p>
+   <p class="mby"><span data-en="2 min read">読了 約2分</span></p>
+  </article>
+  <article class="mcard rv">
+   <a class="mcover" href="#m-motion" aria-label="墨で描く、動く背景。" data-en-aria-label="A backdrop painted stroke by stroke."><div class="mc-in mc-ink"><canvas id="mcInk" width="720" height="540"></canvas></div></a>
+   <p class="mtag"><b>No.03</b>MOTION<time datetime="2026-10-12">2026.10.12</time></p>
+   <h3><a href="#m-motion"><span data-en="A backdrop painted stroke by stroke.">墨で描く、動く背景。</span></a></h3>
+   <p class="men"><span data-en="墨で描く、動く背景。">A backdrop painted stroke by stroke.</span></p>
+   <p class="mlede"><span data-en="The backdrop is not an image but an ink painting drawn each time the page opens. Six colours, six paintings.">背景は画像ではなく、ページを開くたびに描かれる墨絵。六色に、六枚。</span></p>
+   <p class="mby"><span data-en="3 min read">読了 約3分</span></p>
+  </article>
+  <article class="mcard rv">
+   <a class="mcover" href="#m-about" aria-label="このページについて。" data-en-aria-label="About this page."><div class="mc-in mc-seal"><i>六<br>六</i><small>Unofficial concept</small></div></a>
+   <p class="mtag"><b>No.04</b>ABOUT<time datetime="2026-10-10">2026.10.10</time></p>
+   <h3><a href="#m-about"><span data-en="About this page.">このページについて。</span></a></h3>
+   <p class="men"><span data-en="このページについて。">About this page.</span></p>
+   <p class="mlede"><span data-en="An unofficial concept work. The real parts are the code, the design and the words; the fictional parts are the prices and the shop.">非公式のコンセプト作品です。本物はコードとデザインと文章、架空なのは価格と店。</span></p>
+   <p class="mby"><span data-en="1 min read">読了 約1分</span></p>
+  </article>
+ </div>
+</div></section>
+
+<section class="sec"><div class="wrap">
+ <ul class="svc rv">
+  <li><svg viewBox="0 0 32 32"><path d="M2 8h18v14H2zM20 13h6l4 4v5H20"/><circle cx="8" cy="23" r="2.5"/><circle cx="24" cy="23" r="2.5"/></svg><div><b><span data-en="Free shipping">送料無料</span></b><span><span data-en="On orders of ¥11,000 or more, anywhere in Japan.">11,000円以上のご注文で、全国どこでも。</span></span></div></li>
+  <li><svg viewBox="0 0 32 32"><path d="M6 12h15a6 6 0 010 12H9"/><path d="M11 7l-5 5 5 5"/></svg><div><b><span data-en="Returns within 30 days">30日以内の返品</span></b><span><span data-en="Unworn items only.">未使用のものに限り、返品を承ります。</span></span></div></li>
+  <li><svg viewBox="0 0 32 32"><path d="M5 12h22v5H5zM7 17h18v10H7zM16 12v15"/><path d="M16 12c-2-5-8-5-7-1.5C9.5 12 12 12 16 12zM16 12c2-5 8-5 7-1.5-.5 1.5-3 1.5-7 1.5z"/></svg><div><b><span data-en="Gift wrapping">ギフトラッピング</span></b><span><span data-en="Washi wrapping and a handwritten message card.">和紙の包みと、手書きのメッセージカード。</span></span></div></li>
+  <li><svg viewBox="0 0 32 32"><path d="M4 12l2-7h20l2 7M5 12v15h22V12M4 12c0 3 4 3 4 0 0 3 4 3 4 0 0 3 4 3 4 0 0 3 4 3 4 0 0 3 4 3 4 0"/><path d="M13 27v-8h6v8"/></svg><div><b><span data-en="Pick up in store">店舗でお受け取り</span></b><span><span data-en="Try them on at a store near you.">お近くの店舗で、試し履きもできます。</span></span></div></li>
+ </ul>
+</div></section>
+
+<section class="sec"><div class="wrap nl rv">
+ <div><h2><span data-en="New colours and arrivals, ">新しい色と入荷を、</span><wbr><span data-en="once a month.">月に一度お知らせします。</span></h2><p class="s"><span data-en="You can unsubscribe at any time.">登録はいつでも解除できます。</span></p></div>
+ <form id="nlForm" novalidate><input type="email" name="email" placeholder="メールアドレス" aria-label="メールアドレス" data-en-placeholder="Email address" data-en-aria-label="Email address" autocomplete="email" required><button class="cta" type="submit"><span data-en="Sign up">登録する</span></button><p class="msg" id="nlMsg" role="status"></p></form>
+</div></section>
+</main>
+
+<footer class="foot"><div class="wrap">
+ <div class="ftop">
+  <div class="fb"><b>Low Runner 66</b><p><span data-en="An original shoe inspired by 1970s track shoes, and an idea for the shop that sells it.">七〇年代のトラックシューズから着想した、オリジナルの一足と、その売り場の構想。</span></p></div>
+  <nav aria-label="Shop"><h3>Shop</h3><a href="#shop"><span data-en="Shoes">シューズ</span></a><a href="#cats"><span data-en="Apparel">アパレル</span></a><a href="#cats"><span data-en="Bags">バッグ</span></a><a href="#cats"><span data-en="Accessories">アクセサリー</span></a></nav>
+  <nav aria-label="Support"><h3>Support</h3><a href="#" data-soon><span data-en="Size guide">サイズガイド</span></a><a href="#" data-soon><span data-en="Shipping">配送について</span></a><a href="#" data-soon><span data-en="Returns and exchanges">返品・交換</span></a><a href="#" data-soon><span data-en="Contact">お問い合わせ</span></a></nav>
+  <nav aria-label="About"><h3>About</h3><a href="#magazine"><span data-en="Magazine">マガジン</span></a><a href="#feature">Low Runner 66</a><a href="#m-about"><span data-en="About this concept">このコンセプトについて</span></a></nav>
+ </div>
+ <div class="fbot"><p>Unofficial concept. Original shoe design, generated images (any people shown are AI-generated), no brand logos or product photos. Prices, shipping and return terms are fictional. Not affiliated with Onitsuka Tiger or ASICS. Concept by Woncho Chung.</p><span>JP / JPY</span></div>
+</div></footer>
+<div class="reader" id="reader" role="dialog" aria-modal="true" aria-labelledby="rdHt" aria-hidden="true">
+ <div class="rd-bar">
+  <button class="rd-close" id="rdClose" type="button"><svg class="chev" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4"/></svg><span data-en="Magazine">マガジン</span></button>
+  <span class="rd-id" id="rdId"></span>
+  <div class="rd-lang" role="group" aria-label="Language"><button type="button" data-l="ja" aria-pressed="true">JP</button><button type="button" data-l="en" aria-pressed="false">EN</button></div>
+ </div>
+ <div class="rd-scroll" id="rdScroll">
+  <article class="rd-art">
+   <div class="rd-side"><h1 class="rd-vt" id="rdVt" lang="ja"></h1><span class="rd-vm" id="rdVm"></span></div>
+   <div class="rd-main"><h1 class="rd-ht" id="rdHt" lang="en"></h1><p class="rd-sub" id="rdSub" lang="en"></p><div id="rdBody"></div></div>
+  </article>
+  <a class="rd-next" id="rdNext" href="#m-design"><small id="rdNextL">次のコラム</small><b><span id="rdNextT"></span><svg viewBox="0 0 18 18"><path d="M2 9h13M10 4l5 5-5 5"/></svg></b></a>
+ </div>
+</div>
+
+<template id="t-colour" data-no="01" data-cat="COLOUR" data-vt="六色に、|顔料の名前を。" data-ja="六色に、顔料の名前を。" data-en="Naming six colourways after Japanese pigments.">
+ <div class="rd-ja" lang="ja">
+  <p class="deck">黄、赤、青、緑、橙、灰。ふつうの言い方で通じる六色に、わざわざ昔ながらの名前をつけた理由を、色ごとに。</p>
+  <p>同じ形の靴を六色で作ると、色に名前が要る。黄、赤、青と呼べば用は足りるけれど、日本には、花や草の根、木の実から取った、もっと細やかな色の名前が昔から残っている。この靴では、その名前を借りることにした。以下は、六色それぞれの名前の由来と、靴のどこに使ったかの覚え書き。</p>
+  <section class="clr" style="--c:#e0a82e"><img src="cut/web/side_gold.webp" alt="" loading="lazy" decoding="async"><div><h2>山吹色<small>やまぶきいろ　Yamabuki</small></h2><p>ヤマブキの花の黄色。オレンジと黄色のあいだの、あたたかい黄で、古くから小判の黄金色にたとえられてきた。靴ひもまわりとかかとのスエードに使っている。もともとの設計がこの色だったので、ほかの五色の基準にもなった。</p></div></section>
+  <section class="clr" style="--c:#c4483f"><img src="cut/web/side_red.webp" alt="" loading="lazy" decoding="async"><div><h2>茜色<small>あかねいろ　Akane</small></h2><p>アカネの根で染めた、沈んだ赤。根にはアリザリンという色素があり、古代から使われてきた古い染料のひとつ。万葉集には、この染めの色合いから「紫」「日」などにかかる枕詞として詠まれた歌が、およそ十一首ある。明るい赤ではなく、落ち着いた赤。</p></div></section>
+  <section class="clr" style="--c:#3a5798"><img src="cut/web/side_navy.webp" alt="" loading="lazy" decoding="async"><div><h2>紺色<small>こんいろ　Kon</small></h2><p>藍染めの、深い青。「紺」という呼び名は平安時代の中ごろから使われるようになり、平安の末から鎌倉時代にかけて男性の装いの色として愛され、藍の栽培と染めが盛んになるきっかけになったという。六色のなかでいちばん、街になじむ色。</p></div></section>
+  <section class="clr" style="--c:#3f7a55"><img src="cut/web/side_forest.webp" alt="" loading="lazy" decoding="async"><div><h2>常磐色<small>ときわいろ　Tokiwa</small></h2><p>松や杉のように、一年じゅう葉を落とさない木の緑。常磐木（ときわぎ）の色という意味で、鎌倉時代の歌集『新撰六帖』（一二四四年ごろ）にも色名として出てくる。常に緑であることから、永久に変わらないことの象徴として、縁起のよい名とされてきた。</p></div></section>
+  <section class="clr" style="--c:#d9792f"><img src="cut/web/side_orange.webp" alt="" loading="lazy" decoding="async"><div><h2>橙色<small>だいだいいろ　Daidai</small></h2><p>果物のダイダイの色。「代々栄える」に通じるとして縁起のよい果物とされ、十二月ごろに熟した実が、鏡餅やしめ飾りなど正月の飾りに使われる。六色のなかで、いちばん元気のある色。</p></div></section>
+  <section class="clr" style="--c:#74889a"><img src="cut/web/side_slate.webp" alt="" loading="lazy" decoding="async"><div><h2>鼠色<small>ねずみいろ　Nezumi</small></h2><p>ネズミの毛の色にちなむ灰色。この名前が出てくるのは十七世紀前半、江戸時代の初めと考えられている。戦乱の記憶が残る時代で、火事や火葬を思わせる「灰」色が嫌われ、「鼠」という名が生まれたとされる。のちに倹約が奨められるなか、庶民が使える色は茶や鼠、藍といった地味な色が中心になり、江戸中期ごろから流行は茶から鼠へ移っていった。</p></div></section>
+  <p class="rd-end">どれも、派手な名前ではない。けれど、名前がつくと、靴は「黄色い靴」から「山吹の靴」になる。選ぶ理由が、ひとつ増える。</p>
+ </div>
+ <div class="rd-en" lang="en">
+  <p class="deck">Yellow, red, blue, green, orange, grey. Why six ordinary colours were given older Japanese names, one by one.</p>
+  <p>A shoe in six colours needs six names. "Yellow, red, blue" would do the job, but Japan has kept a finer set of colour names for centuries, taken from flowers, roots and fruit. We borrowed them. What follows is a short note on where each name comes from and where the colour sits on the shoe.</p>
+  <section class="clr" style="--c:#e0a82e"><img src="cut/web/side_gold.webp" alt="" loading="lazy" decoding="async"><div><h2>Yamabuki<small>山吹色</small></h2><p>The yellow of the yamabuki (Japanese kerria) flower: a warm yellow between orange and yellow, long compared to the gold of old koban coins. On the shoe it is the suede around the laces and the heel. The original design was this colour, so it became the reference for the other five.</p></div></section>
+  <section class="clr" style="--c:#c4483f"><img src="cut/web/side_red.webp" alt="" loading="lazy" decoding="async"><div><h2>Akane<small>茜色</small></h2><p>A subdued red dyed from the root of the akane (madder) plant, whose pigment is alizarin; one of the oldest dyes in use. In the Man'yōshū, an eighth-century poetry anthology, about eleven poems use the colour of madder dye as a makurakotoba, a fixed poetic epithet, for words such as "purple" and "sun". Not a bright red but a settled one.</p></div></section>
+  <section class="clr" style="--c:#3a5798"><img src="cut/web/side_navy.webp" alt="" loading="lazy" decoding="async"><div><h2>Kon<small>紺色</small></h2><p>A deep blue from indigo dyeing. The name kon has been used since the middle of the Heian period, and from the late Heian into the Kamakura period it was a favourite colour for men's clothing, which helped indigo farming and dyeing to flourish. The quietest of the six on a city street.</p></div></section>
+  <section class="clr" style="--c:#3f7a55"><img src="cut/web/side_forest.webp" alt="" loading="lazy" decoding="async"><div><h2>Tokiwa<small>常磐色</small></h2><p>The green of pine and cedar, trees that keep their leaves all year (tokiwagi). The name appears as a colour in a Kamakura-period waka collection, the Shinsen Rokujō (around 1244), and because evergreens never change, it became an auspicious name, a symbol of permanence.</p></div></section>
+  <section class="clr" style="--c:#d9792f"><img src="cut/web/side_orange.webp" alt="" loading="lazy" decoding="async"><div><h2>Daidai<small>橙色</small></h2><p>The colour of the daidai, the bitter orange. The name is said to mean "generation after generation", a wish for lasting prosperity, so the fruit, ripe around December, is used on kagami-mochi and shimenawa for the New Year. The liveliest of the six.</p></div></section>
+  <section class="clr" style="--c:#74889a"><img src="cut/web/side_slate.webp" alt="" loading="lazy" decoding="async"><div><h2>Nezumi<small>鼠色</small></h2><p>Grey, after the colour of a mouse's fur. The word is thought to appear in the first half of the 17th century, in the early Edo period, when "ash grey" recalled fires and cremation and was avoided. Later, with thrift urged and luxury policed, the colours commoners could wear freely were mostly brown, grey and indigo, and from the mid-Edo period fashion moved from brown to grey.</p></div></section>
+  <p class="rd-end">None of the six is a showy name. But with a name, the shoe stops being "a yellow shoe" and becomes a yamabuki one. That is one more reason to choose it.</p>
+ </div>
+ <ul class="src"><li>出典 / Sources: Wikipedia（日本語版）、2026年10月閲覧　<a href="https://ja.wikipedia.org/wiki/山吹色" target="_blank" rel="noopener">山吹色</a>　<a href="https://ja.wikipedia.org/wiki/茜色" target="_blank" rel="noopener">茜色</a>　<a href="https://ja.wikipedia.org/wiki/紺色" target="_blank" rel="noopener">紺色</a>　<a href="https://ja.wikipedia.org/wiki/常磐色" target="_blank" rel="noopener">常磐色</a>　<a href="https://ja.wikipedia.org/wiki/ダイダイ" target="_blank" rel="noopener">ダイダイ</a>　<a href="https://ja.wikipedia.org/wiki/鼠色" target="_blank" rel="noopener">鼠色</a></li></ul>
+</template>
+
+<template id="t-design" data-no="02" data-cat="DESIGN" data-vt="障子の|向こうの一足。" data-ja="障子の向こうの一足。" data-en="The shoe behind paper.">
+ <div class="rd-ja" lang="ja">
+  <p class="deck">写真は平面だから、斜めから見ると薄く見える。だから靴は、紙の向こうに置くことにした。</p>
+  <p>このページのカルーセルでは、靴の入った戸棚が輪になって並び、正面に来たものだけがこちらを向く。ここで困ったのは、靴の写真が平面だということだった。横から眺めると、写真は板のように見える。</p>
+  <p>そこで、正面に来るまで戸を閉めておくことにした。戸は障子。木の枠に和紙を貼った建具で、光をやわらかく通す。閉じている間、靴ははっきり見えず、紙の上に影として映る。</p>
+  <p>カードが正面に近づくと、二枚の戸が左右へ引かれ、影は半分ずつに割れて、そのあいだから靴が現れる。戸は二本のレールに乗っていて、枠の柱の陰へ消えていく。</p>
+  <p class="pull">さえぎるのに、隠しきらない。</p>
+  <p>障子は、もともと「さえぎる道具」を意味する言葉だったという。いまは、明かりを通すために木枠に和紙を貼った建具をいう。さえぎるのに、隠しきらない。この仕掛けは、そこから始まった。</p>
+ </div>
+ <div class="rd-en" lang="en">
+  <p class="deck">A product photo is flat. Seen at an angle, the shoe that should look best looks thinnest. So we put it behind paper.</p>
+  <p>In this page's carousel, the cabinets that hold the shoes stand in a ring, and only the one in front faces you. That raised a problem: a shoe photograph is a flat picture. Seen from the side, it reads as a board.</p>
+  <p>So the doors stay shut until a cabinet arrives in front. The doors are shoji: a wooden frame covered with washi paper that lets light through softly. While closed, you cannot see the shoe clearly; it shows only as a shadow on the paper.</p>
+  <p>As the card comes forward, the two leaves slide apart, the shadow splits into halves, and the shoe appears between them. The leaves run on two tracks and slip behind the frame's side posts.</p>
+  <p class="pull">It screens, without hiding completely.</p>
+  <p>Shoji, we are told, once meant simply "something that screens"; today it means a wooden frame covered with washi to let light in. It screens without hiding completely. That is where the idea started.</p>
+ </div>
+ <ul class="src"><li>出典 / Source: Wikipedia（日本語版）、2026年10月閲覧　<a href="https://ja.wikipedia.org/wiki/障子" target="_blank" rel="noopener">障子</a></li></ul>
+</template>
+
+<template id="t-motion" data-no="03" data-cat="MOTION" data-vt="墨で描く、|動く背景。" data-ja="墨で描く、動く背景。" data-en="A backdrop painted stroke by stroke.">
+ <div class="rd-ja" lang="ja">
+  <p class="deck">背景は画像ではなく、ページを開くたびに描かれる墨絵。六色に、六枚。</p>
+  <p>このページの背景は、置いてある画像ではない。ページを開くと、ブラウザの中で墨絵が描かれる。六色それぞれに別の絵があり、山吹には松、茜には雁と紅葉、紺には竹、常磐には杉、橙には柿、鼠には雨。</p>
+  <p>筆は、毛の集まりとして計算している。毛は一本ずつ墨を含んでいて、進むにつれて墨が減り、紙の凹凸の高いところにだけ触れる。すると、筆が乾いたときの「かすれ」が出る。筆を置いたところには墨がたまり、にじむ。山は線では描かず、薄い墨の面を重ねている。</p>
+  <p class="pull">置いてあるのは画像ではなく、筆の動き。</p>
+  <p>絵は手前・中・奥の三層に分けてあり、マウスの動きや、カードを回す動きにあわせて、層をわずかにずらしている。色が変わるときは、新しい絵が、墨が水に広がるように現れる。</p>
+  <p>六枚の絵を描く処理は、別のスレッド（ワーカー）で行っているので、描いている間もページは止まらない。</p>
+ </div>
+ <div class="rd-en" lang="en">
+  <p class="deck">The backdrop is not an image file. It is painted in your browser each time the page opens: six ink paintings, one per colour.</p>
+  <p>The background of this page is not a picture that was placed here. When the page opens, ink paintings are painted inside the browser. Each of the six colours has its own scene: a pine for yamabuki, geese and maple for akane, bamboo for kon, cedar for tokiwa, a persimmon branch for daidai, rain for nezumi.</p>
+  <p>The brush is computed as a bundle of single bristles. Each bristle carries its own ink, loses it as it travels, and only touches the high points of the paper's grain. That is what produces kasure, the dry-brush streaks. Where the brush lands, ink pools and bleeds. The mountains are not drawn with lines but with thin, layered washes.</p>
+  <p class="pull">What is stored is not a picture but the motion of a brush.</p>
+  <p>Every painting is built in three layers, near, middle and far, and the layers shift slightly with the mouse and with the carousel. When the colour changes, the new painting spreads in like ink in water.</p>
+  <p>The six paintings are made in a worker, a separate thread, so the page never stops moving while they are painted.</p>
+ </div>
+</template>
+
+<template id="t-about" data-no="04" data-cat="ABOUT" data-vt="このページ|について。" data-ja="このページについて。" data-en="About this page.">
+ <div class="rd-ja" lang="ja">
+  <p class="deck">非公式のコンセプト作品です。本物はコードとデザインと文章、架空なのは価格と店。</p>
+  <p>このページは、特定のブランドとは関係のない、非公式のコンセプト作品です。靴は、この作品のためにゼロから描いたオリジナルのデザインで、写真に見える画像は AI で生成したもの。ロゴも、公式の写真も使っていません。価格、送料、返品の条件は、すべて架空です。</p>
+  <p>コラムにある色名の由来は、日本語版 Wikipedia の記述に基づいていて、各コラムの末尾に出典を載せています。</p>
+  <p>売り場の並べ方は、オニツカタイガーの公式サイトを参考にしましたが、同社および ASICS とは一切関係がありません。</p>
+  <p class="pull">本物なのは、コードとデザインと文章。</p>
+  <p>Woncho Chung が、AI を道具として使いながら作りました。ブランドの仕事に AI をどう使えるかを示すための、ポートフォリオの一部です。</p>
+ </div>
+ <div class="rd-en" lang="en">
+  <p class="deck">An unofficial concept, and a list of what is real and what is not.</p>
+  <p>This page is an unofficial concept with no connection to any brand. The shoe is an original design drawn for this piece, and the pictures that look like photographs were generated with AI. No logos and no official photographs are used. Prices, shipping and return terms are all fictional.</p>
+  <p>The colour histories in these columns follow the Japanese-language Wikipedia, with sources listed at the end of each column.</p>
+  <p>The page borrows the way a shop is laid out from the Onitsuka Tiger website, but has nothing to do with that company or with ASICS.</p>
+  <p class="pull">What is real: the code, the design, the writing.</p>
+  <p>Woncho Chung made them, using AI as a tool, as part of a portfolio about how AI can be used in brand work.</p>
+ </div>
+</template>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script type="module">
+import * as THREE from 'three';
+import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
+import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
+import {createPainter,paperTile,brushText,sealMask} from './ink.js?v=4';
+
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let LANG='ja';   /* 'ja' is the page, 'en' swaps text in (see applyLang near the end) */
+const $=s=>document.querySelector(s), clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x)), sstep=(a,b,x)=>{const t=clamp((x-a)/(b-a));return t*t*(3-2*t);};
+let seedv=11;const rnd=()=>{seedv=(seedv*16807)%2147483647;return seedv/2147483647;};
+
+/* ---------- washi paper: one seamless tile of kozo fibres, used as the hero's paper ---------- */
+const PAPER=paperTile(1024,3);
+/* the tile feeds the hero shader and the live cover only; the rest of the page stays flat */
+
+/* ---------- the backdrop: a sumi-e painting made of brush strokes (ink.js), painted once into three depth layers and composited on the paper by a shader
+   that adds paper relief, drifting mist, parallax, drifting gold-leaf flecks and an ink-bloom when the colourway changes ---------- */
+const MOODS=[
+ {k:'山',accent:'#b4820a',ta:'#f2c766',tb:'#ed9e38',ink:'#171314'},
+ {k:'茜',accent:'#a8372f',ta:'#ed9e94',tb:'#cc332e',ink:'#171213'},
+ {k:'紺',accent:'#2f4e8a',ta:'#849ed6',tb:'#4d66b8',ink:'#111319'},
+ {k:'常',accent:'#2f6b4a',ta:'#9ecca3',tb:'#599e73',ink:'#111513'},
+ {k:'橙',accent:'#c2641c',ta:'#f7b873',tb:'#eb7326',ink:'#171312'},
+ {k:'鼠',accent:'#58626d',ta:'#b8bfc7',tb:'#738090',ink:'#121315'}
+];
+const hex=h=>[parseInt(h.slice(1,3),16)/255,parseInt(h.slice(3,5),16)/255,parseInt(h.slice(5,7),16)/255];
+const palOf=m=>({ta:hex(m.ta),tb:hex(m.tb),ink:hex(m.ink)});
+const bgc=$('#bg'),gl=bgc.getContext('webgl',{antialias:false,alpha:false});
+const U={speed:1,mx:.5,my:.5};
+const SHOPC=(h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255))(getComputedStyle(document.documentElement).getPropertyValue('--shop').trim()||'#fbfaf7');   /* the flat colour under the hero, read from CSS so the two never drift apart */
+const BG={cur:-1,nxt:-1,blend:0,tw:null,want:-1,epoch:0,key:'',par:[0,0],palA:palOf(MOODS[0]),palB:palOf(MOODS[0]),hasA:0,hasB:0,paper:null,blank:null,inbox:[],fonts:false,pw:0,ph:0};
+const SCN=MOODS.map(()=>({tex:null,asp:1,ready:false}));        // one set of three layer textures per painting; all six stay on the GPU so a change never waits
+const PAD=1.08;
+let prog=null,uni={};
+if(gl){
+  const vs='attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
+  const fs=`precision highp float;
+  uniform vec3 uShop;uniform vec2 uRes,uPar,uMouse;uniform float uT,uDpr,uBlend,uHasA,uHasB,uPad,uSpeed,uAspA,uAspB;
+  uniform sampler2D uPaper,uA0,uA1,uA2,uB0,uB1,uB2,uBT;uniform vec3 uTaA,uTbA,uInkA,uTaB,uTbB,uInkB;
+  float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
+  float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);}
+  float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*noise(p);p=p*2.03+vec2(7.1,3.3);a*=.5;}return v;}
+  vec3 layer(vec3 c,vec4 s,vec3 ta,vec3 tb,vec3 ink){c*=mix(vec3(1.),ta,s.g);c*=mix(vec3(1.),tb,s.b);c*=mix(vec3(1.),vec3(.80,.17,.13),s.a);c*=mix(vec3(1.),ink,s.r);return c;}
+  vec2 pUV(vec2 uv,float k,float ta){float ca=uRes.x/uRes.y;vec2 q=uv-.5;if(ca>ta)q.y*=ta/ca;else q.x*=ca/ta;q=q/uPad+.5+uPar*k;return vec2(q.x,1.-q.y);}   /* a painting made at another window size is cropped, never stretched */
+  float mistAt(vec2 uv,float k){return smoothstep(.45,.8,fbm(vec2(uv.x*1.7+uT*.011*k*uSpeed,uv.y*7.+k*3.1)));}
+  /* a stroke appears when the painting's clock (Tp, 0..1) reaches the moment it was laid down (tm, written by ink.js): the ink goes on a little heavy and settles */
+  vec4 laid(vec4 s,float tm,float Tp){float d=Tp-tm,r=smoothstep(0.,.045,d);s*=r;s.r=min(1.,s.r*(1.+.5*r*(1.-smoothstep(0.,.1,d))));return s;}
+  vec3 painting(sampler2D L0,sampler2D L1,sampler2D L2,sampler2D TT,float Tp,vec3 ta,vec3 tb,vec3 ink,vec2 uv,vec3 paper,float asp){
+    vec3 c=paper;vec2 u0=pUV(uv,.006,asp),u1=pUV(uv,.014,asp),u2=pUV(uv,.03,asp);
+    vec4 s0=texture2D(L0,u0),s1=texture2D(L1,u1),s2=texture2D(L2,u2);
+    if(Tp<2.){s0=laid(s0,texture2D(TT,u0).r,Tp);s1=laid(s1,texture2D(TT,u1).g,Tp);s2=laid(s2,texture2D(TT,u2).b,Tp);}
+    c=layer(c,s0,ta,tb,ink);c=mix(c,paper,mistAt(uv,1.)*.42);
+    c=layer(c,s1,ta,tb,ink);c=mix(c,paper,mistAt(uv+vec2(.37,.11),1.6)*.24);
+    c=layer(c,s2,ta,tb,ink);return c;}
+  void main(){
+    vec2 fc=gl_FragCoord.xy,uv=fc/uRes;float asp=uRes.x/uRes.y;
+    vec2 pu=fc/(512.*uDpr);vec3 pc=texture2D(uPaper,pu).rgb;
+    float h0=dot(pc,vec3(.333)),hx=dot(texture2D(uPaper,pu+vec2(1./1024.,0.)).rgb,vec3(.333)),hy=dot(texture2D(uPaper,pu+vec2(0.,1./1024.)).rgb,vec3(.333));
+    vec3 paper=pc*(1.+((h0-hx)+(h0-hy))*1.25);
+    vec3 col=uHasA>.5?painting(uA0,uA1,uA2,uBT,9.,uTaA,uTbA,uInkA,uv,paper,uAspA):paper;
+    if(uBlend>.001&&uHasB>.5){
+      /* a colour change is a painting being painted: the old picture fades back to bare paper while the new one is brushed on, stroke by stroke,
+         in the order it was made (washes of the far hills first, then the near hills, the branch, the needles, and the seal last) */
+      float T=uBlend;
+      vec3 B=painting(uB0,uB1,uB2,uBT,(T-.08)/.84,uTaB,uTbB,uInkB,uv,paper,uAspB);
+      col=mix(paper,col,1.-smoothstep(0.,.34,T));
+      col=col*B/paper;                                                                              /* ink over ink: the layers multiply */
+    }
+    vec2 gp=(fc/uDpr+uPar*vec2(90.,60.))/46.,gi=floor(gp),gf=fract(gp)-.5;float hh=hash(gi);   /* gold-leaf flecks that glint as you move */
+    float fl=step(.985,hh)*smoothstep(.13,.02,length(gf*vec2(1.,1.4)+(hash(gi+3.)-.5)*.3));
+    col=mix(col,vec3(.93,.76,.36),fl*(.5+.5*sin(uT*.7+hh*80.+uMouse.x*6.+uMouse.y*3.))*.6);
+    float vg=smoothstep(1.3,.25,length((uv-vec2(.5,.52))*vec2(asp*.7,1.)));
+    col=mix(uShop,col*mix(.9,1.,vg),smoothstep(0.,.2,uv.y));                              /* the lower edge dissolves into the flat colour of the shop below */
+    col+=(hash(fc)-.5)/255.;
+    gl_FragColor=vec4(col,1.);
+  }`;
+  const sh=(t,src)=>{const o=gl.createShader(t);gl.shaderSource(o,src);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))console.error(gl.getShaderInfoLog(o));return o;};
+  prog=gl.createProgram();gl.attachShader(prog,sh(gl.VERTEX_SHADER,vs));gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);gl.useProgram(prog);
+  const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+  const loc=gl.getAttribLocation(prog,'a');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+  ['uShop','uRes','uPar','uMouse','uT','uDpr','uBlend','uHasA','uHasB','uPad','uSpeed','uAspA','uAspB','uPaper','uA0','uA1','uA2','uB0','uB1','uB2','uBT','uTaA','uTbA','uInkA','uTaB','uTbB','uInkB'].forEach(n=>uni[n]=gl.getUniformLocation(prog,n));
+  BG.mk=repeat=>{const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([0,0,0,0]));
+    const w=repeat?gl.REPEAT:gl.CLAMP_TO_EDGE;gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,w);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,w);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);return t;};
+  BG.paper=BG.mk(true);gl.bindTexture(gl.TEXTURE_2D,BG.paper);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,PAPER);gl.generateMipmap(gl.TEXTURE_2D);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);
+  BG.blank=[BG.mk(),BG.mk(),BG.mk()];
+}
+/* a painting arrives from the worker: its three layers go to the GPU, one painting per frame so the upload never shows as a hitch */
+function uploadScene(m){
+  const s=SCN[m.idx];if(!s.tex)s.tex=[BG.mk(),BG.mk(),BG.mk()];
+  s.tex.forEach((t,i)=>{const L=m.layers[i];gl.bindTexture(gl.TEXTURE_2D,t);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,m.W,m.H,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array(L.buffer,L.byteOffset,L.byteLength));});
+  if(!s.tm){s.tm=BG.mk();gl.bindTexture(gl.TEXTURE_2D,s.tm);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);}   // the paint-time map must not be smoothed: a blurred time is a wrong time
+  gl.bindTexture(gl.TEXTURE_2D,s.tm);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,m.W,m.H,0,gl.RGBA,gl.UNSIGNED_BYTE,m.times);
+  s.asp=m.W/m.H;s.ready=true;
+  if(BG.want===m.idx&&!BG.tw&&BG.cur!==m.idx)bgNext();
+}
+function drawBg(now){
+  if(!gl)return;
+  const m=BG.inbox.shift();if(m)uploadScene(m);
+  const dpr=Math.min(devicePixelRatio,BGPR[typeof Q==='number'?Q:0]),w=Math.max(2,Math.round(bgc.clientWidth*dpr)),h=Math.max(2,Math.round(bgc.clientHeight*dpr));
+  if(bgc.width!==w||bgc.height!==h){bgc.width=w;bgc.height=h;gl.viewport(0,0,w,h);}
+  const tx=(U.mx-.5)*.5+pos*.34,ty=(U.my-.5)*.28;BG.par[0]+=(tx-BG.par[0])*.06;BG.par[1]+=(ty-BG.par[1])*.06;
+  const A=SCN[BG.cur],B=SCN[BG.nxt];
+  gl.uniform3fv(uni.uShop,SHOPC);gl.uniform2f(uni.uRes,w,h);gl.uniform1f(uni.uDpr,dpr);gl.uniform2f(uni.uPar,BG.par[0],BG.par[1]);gl.uniform2f(uni.uMouse,U.mx,U.my);
+  gl.uniform1f(uni.uT,reduce?4:now/1000);gl.uniform1f(uni.uBlend,BG.blend);gl.uniform1f(uni.uHasA,A&&A.ready?1:0);gl.uniform1f(uni.uHasB,B&&B.ready&&BG.hasB?1:0);gl.uniform1f(uni.uPad,PAD);gl.uniform1f(uni.uSpeed,U.speed);
+  gl.uniform1f(uni.uAspA,A?A.asp:1);gl.uniform1f(uni.uAspB,B?B.asp:1);
+  gl.uniform3fv(uni.uTaA,BG.palA.ta);gl.uniform3fv(uni.uTbA,BG.palA.tb);gl.uniform3fv(uni.uInkA,BG.palA.ink);gl.uniform3fv(uni.uTaB,BG.palB.ta);gl.uniform3fv(uni.uTbB,BG.palB.tb);gl.uniform3fv(uni.uInkB,BG.palB.ink);
+  [BG.paper,...(A&&A.tex||BG.blank),...(B&&B.tex||BG.blank),B&&B.tm||BG.blank[0]].forEach((t,i)=>{gl.activeTexture(gl.TEXTURE0+i);gl.bindTexture(gl.TEXTURE_2D,t);});
+  ['uPaper','uA0','uA1','uA2','uB0','uB1','uB2','uBT'].forEach((n,i)=>gl.uniform1i(uni[n],i));
+  gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+}
+/* All six paintings are made in a worker as soon as the page opens (neighbours first), at about one pixel per CSS pixel, and then stay on the GPU.
+   Changing colour is therefore only a blend: nothing is generated at that moment. Without Worker support the same job runs on the page in small steps. */
+let worker=null;
+try{worker=new Worker('./ink-worker.js?v=4',{type:'module'});
+  worker.onmessage=e=>{const m=e.data;if(m.epoch!==BG.epoch)return;if(m.type==='scene')BG.inbox.push(m);else console.error(m.msg);};
+  worker.onerror=ev=>{console.error(ev.message||ev);worker=null;BG.key='';startGen(Math.max(BG.want,0));};}catch(e){worker=null;}
+let mainChain=Promise.resolve();
+function startGen(first){
+  if(!gl)return;
+  const w=hero.clientWidth||innerWidth,h=hero.clientHeight||innerHeight,q=Math.min(1,Math.sqrt(1.5e6/(w*h*PAD*PAD))),pw=Math.round(w*PAD*q),ph=Math.round(h*PAD*q),key=pw+'x'+ph+(worker?'w':'m');
+  if(key===BG.key)return;
+  BG.key=key;BG.pw=pw;BG.ph=ph;const epoch=++BG.epoch;BG.inbox.length=0;
+  const order=[0,1,-1,2,-2,3].map(o=>((first+o)%MOODS.length+MOODS.length)%MOODS.length);
+  if(worker){worker.postMessage({cmd:'gen',pw,ph,seed:11,order,epoch});postSeals();}
+  else{const p=createPainter(pw,ph,11);order.forEach(idx=>{mainChain=mainChain.then(async()=>{if(epoch!==BG.epoch)return;try{const sc=await p.scene(idx);if(epoch===BG.epoch)BG.inbox.push({idx,epoch,W:sc.W,H:sc.H,layers:sc.layers,times:sc.times});}catch(e){console.error(e);}});});}
+}
+function postSeals(){if(!worker||!BG.fonts||!BG.ph)return;const S=Math.round(56*Math.min(BG.ph,BG.pw/1.5)/1000);   // the size is only known once startGen has run; it posts the seals itself afterwards
+  worker.postMessage({cmd:'seals',seals:{[S+':六六']:sealMask(S,'六六')}});}
+function bgShow(k,instant){
+  BG.want=k;if(!gl)return;
+  if(BG.tw){BG.tw.timeScale(7);return;}      // a blend is running: let it finish quickly; bgNext then carries on to the newest colour
+  bgNext(instant);
+}
+function bgNext(instant){
+  const k=BG.want,s=SCN[k];if(k<0||k===BG.cur||!s.ready)return;   // not painted yet: uploadScene calls this again when it arrives
+  BG.nxt=k;BG.palB=palOf(MOODS[k]);BG.hasB=1;
+  const done=()=>{BG.tw=null;BG.cur=k;BG.palA=BG.palB;BG.hasA=1;BG.hasB=0;BG.blend=0;if(BG.want!==BG.cur)bgNext();};
+  if(instant||reduce||!window.gsap){done();return;}
+  BG.blend=0;BG.tw=gsap.to(BG,{blend:1,duration:BG.cur<0?2.2:1.7,ease:'none',onComplete:done});
+}
+let rzT=0;addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>startGen(Math.max(BG.want,0)),500);});
+let moodIdx=0;
+function setMood(k,instant){
+  if(k===moodIdx)return;
+  moodIdx=k;
+  document.documentElement.style.setProperty('--accent',MOODS[k].accent);
+  try{syncFeature(k);}catch(e){}
+  bgShow(k,instant);
+}
+/* the tagline is written with a brush as part of the painting; first paint: the paper is already there, then the first painting blooms in */
+function buildTagline(){const vt=$('#vtext');if(!vt)return;try{
+  const c=brushText('足もとに、日本の美意識を。',84,7,{fade:.72});vt.prepend(c);vt.classList.add('inked');
+  if(!reduce&&window.gsap){c.style.cssText+='-webkit-mask-image:linear-gradient(180deg,#000 var(--w),transparent calc(var(--w) + 9%));mask-image:linear-gradient(180deg,#000 var(--w),transparent calc(var(--w) + 9%));--w:-10%';
+    gsap.to(c,{'--w':'110%',duration:3.4,delay:1.1,ease:'power1.inOut',onComplete(){c.style.webkitMaskImage=c.style.maskImage='none';}});}      // the column is written top to bottom
+}catch(e){console.error(e);}}
+Promise.race([document.fonts.load('400 60px "Yuji Boku"','足もとに、日本の美意識を。山茜紺常橙鼠六').catch(()=>{}),new Promise(r=>setTimeout(r,2500))]).then(()=>{BG.fonts=true;postSeals();buildTagline();bgShow(0);});
+
+/* ---------- what goes on the cards: the same blocks the official best-seller row has (tabs, name, price, UNISEX) ---------- */
+const SHOES=[
+ {jp:'山吹色',en:'Yamabuki',img:'cut/side_gold.png',b:'#e0a82e',desc:'Cream leather, yamabuki-yellow suede, gum sole.'},
+ {jp:'茜色',en:'Akane',img:'cut/side_red.png',b:'#c4483f',desc:'The same shoe in madder red.'},
+ {jp:'紺色',en:'Kon',img:'cut/side_navy.png',b:'#3a5798',desc:'Deep indigo panels, a quieter city version.'},
+ {jp:'常磐色',en:'Tokiwa',img:'cut/side_forest.png',b:'#3f7a55',desc:'Evergreen: the colour of pine, all year.'},
+ {jp:'橙色',en:'Daidai',img:'cut/side_orange.png',b:'#d9792f',desc:'Bitter-orange, closest to the track originals.'},
+ {jp:'鼠色',en:'Nezumi',img:'cut/side_slate.png',b:'#74889a',desc:'Mouse grey: calm, almost monochrome.'}
+];
+const GOODS=(kanji,b,items)=>items.map(([jp,en,desc])=>({jp,en,kanji,desc,b}));
+const SETS={
+ shoes:{items:SHOES},
+ apparel:{items:GOODS('衣','#b04a3e',[['トラックトップ','Track top','Light jacket in the shoe\'s colours.'],['スウェットトップ','Sweat top','Heavy cotton, quiet cut.'],['Tシャツ','T-shirt','Everyday cotton jersey.'],['ロングスリーブ','Long sleeve','Layering tee.'],['ショーツ','Shorts','Track shorts, knee-length.'],['アウター','Outer','Windproof shell.']])},
+ bags:{items:GOODS('鞄','#3f7a55',[['トートバッグ','Tote bag','Canvas, wide opening.'],['バックパック','Backpack','Daily size, padded back.'],['ショルダー','Shoulder bag','Compact crossbody.'],['ポーチ','Pouch','For small things.'],['ボストン','Boston bag','Weekend size.'],['ウエストバッグ','Waist bag','Hands free.']])},
+ acc:{items:GOODS('小','#6a6764',[['ソックス','Socks','Ribbed crew socks.'],['キャップ','Cap','Six-panel cotton cap.'],['ヘッドウェア','Headwear','Knit beanie.'],['革小物','Leather goods','Wallet and card case.'],['キーケース','Key case','Stitched leather.'],['スカーフ','Scarf','Light wool-silk blend.']])}
+};
+const N=6;
+
+/* ---------- three.js ---------- */
+const hero=$('#hero'),canvas=$('#gl');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,powerPreference:'high-performance'});
+const PR=[Math.min(devicePixelRatio,2),Math.min(devicePixelRatio,1.4),1],BGPR=[1.25,1,.75];let Q=0;
+renderer.setPixelRatio(PR[0]);
+renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1;
+renderer.localClippingEnabled=true;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;
+const MAXA=renderer.capabilities.getMaxAnisotropy();
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(30,1,.1,60);
+
+/* the room the doors stand in: a small photo studio baked into an environment map — one big warm window, a thin cool strip, an overhead panel and a
+   warm bounce from below. It is what the lacquered wood and the brass reflect, so highlights slide across the doors as they turn. */
+function studioEnv(){
+  const s=new THREE.Scene();
+  const room=new THREE.Mesh(new THREE.BoxGeometry(60,40,60),new THREE.MeshBasicMaterial({side:THREE.BackSide,vertexColors:true}));
+  const pos=room.geometry.attributes.position,col=new Float32Array(pos.count*3),top=new THREE.Color('#d8c3a0'),mid=new THREE.Color('#8f7a5c'),bot=new THREE.Color('#34261a'),c=new THREE.Color();
+  for(let i=0;i<pos.count;i++){const t=(pos.getY(i)+20)/40;(t>.5?c.copy(mid).lerp(top,(t-.5)*2):c.copy(bot).lerp(mid,t*2));col.set([c.r,c.g,c.b],i*3);}
+  room.geometry.setAttribute('color',new THREE.BufferAttribute(col,3));s.add(room);
+  const panel=(w,h,p,hexc,k)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({color:new THREE.Color(hexc).multiplyScalar(k),side:THREE.DoubleSide}));m.position.set(...p);m.lookAt(0,0,0);s.add(m);};
+  panel(16,10,[-14,10,12],'#fff0d8',10);panel(2.4,22,[18,2,8],'#dce8ff',5);panel(24,14,[0,18,-2],'#fff6e6',3.5);panel(40,8,[0,-10,14],'#c8a070',1.1);
+  const pm=new THREE.PMREMGenerator(renderer),rt=pm.fromScene(s,.03);pm.dispose();return rt.texture;
+}
+scene.environment=studioEnv();
+/* a second room only for the gold: bright softboxes against a dark amber wall, so bevels flash from deep brown to pale gold and flat faces still carry a gradient */
+function metalEnv(){
+  const s=new THREE.Scene(),c=document.createElement('canvas');c.width=8;c.height=512;const g=c.getContext('2d'),gr=g.createLinearGradient(0,0,0,512);
+  [[0,'#ffe7b5'],[.22,'#c9985a'],[.42,'#8a5f2c'],[.5,'#5e3e1b'],[.6,'#1c1006'],[.8,'#0d0703'],[1,'#2a190a']].forEach(([o,col])=>gr.addColorStop(o,col));g.fillStyle=gr;g.fillRect(0,0,8,512);
+  s.add(new THREE.Mesh(new THREE.SphereGeometry(30,48,32),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c),side:THREE.BackSide})));
+  const panel=(w,h2,p,hexc,k)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h2),new THREE.MeshBasicMaterial({color:new THREE.Color(hexc).multiplyScalar(k),side:THREE.DoubleSide}));m.position.set(...p);m.lookAt(0,0,0);s.add(m);};
+  panel(16,10,[-12,9,13],'#fff4dc',22);panel(2.4,22,[18,3,8],'#ffe9c8',14);panel(28,6,[0,17,4],'#fff6e8',10);panel(30,6,[0,6,16],'#ffeccc',5);panel(40,5,[0,-9,12],'#c8905a',1.5);
+  const pm=new THREE.PMREMGenerator(renderer),rt=pm.fromScene(s,.02);pm.dispose();return rt.texture;
+}
+const METAL=metalEnv();
+const hemi=new THREE.HemisphereLight(0xfff6ea,0xb9ab92,.45);scene.add(hemi);
+const key=new THREE.DirectionalLight(0xfff0dc,2.4);key.position.set(-5,7.5,7.5);key.target.position.set(0,-.2,-2);scene.add(key,key.target);
+key.castShadow=true;key.shadow.mapSize.set(2048,2048);key.shadow.radius=2.2;key.shadow.bias=-.0003;key.shadow.normalBias=.012;
+Object.assign(key.shadow.camera,{left:-11,right:11,top:8,bottom:-8,near:1,far:32});key.shadow.camera.updateProjectionMatrix();
+const glint=new THREE.PointLight(0xfff0d0,125,48,1.6);scene.add(glint);   // sweeps slowly across the front, so flat gold faces flash in turn
+const rim=new THREE.DirectionalLight(0xffffff,.7);rim.position.set(7,3.5,-6);rim.target.position.set(0,0,-2);scene.add(rim,rim.target);   // takes the colour of the page
+
+/* wood: a periodic grain (rings bent by noise, fine fibres, pores) → albedo, normal and roughness maps that tile seamlessly */
+function makeWoodMaps(S){
+  const P=256,lat=new Float32Array(P*P);for(let i=0;i<lat.length;i++)lat[i]=rnd();
+  const sm=t=>t*t*(3-2*t);
+  const vn=(x,y,px,py)=>{const xi=Math.floor(x),yi=Math.floor(y),fx=sm(x-xi),fy=sm(y-yi),x0=((xi%px)+px)%px,x1=(x0+1)%px,y0=((yi%py)+py)%py,y1=(y0+1)%py;
+    const a=lat[((y0&255)<<8)|(x0&255)],b=lat[((y0&255)<<8)|(x1&255)],c=lat[((y1&255)<<8)|(x0&255)],d=lat[((y1&255)<<8)|(x1&255)];return a+(b-a)*fx+(c-a)*fy+(a-b-c+d)*fx*fy;};
+  const fb=(u,v,px,py,o)=>{let s=0,a=1,n=0;for(let i=0;i<o;i++){s+=a*vn(u*px*(1<<i),v*py*(1<<i),px*(1<<i),py*(1<<i));n+=a;a*=.5;}return s/n;};
+  const cv=()=>{const c=document.createElement('canvas');c.width=c.height=S;return c;},alb=cv(),nor=cv(),rou=cv();
+  const ia=alb.getContext('2d').createImageData(S,S),ir=rou.getContext('2d').createImageData(S,S),inn=nor.getContext('2d').createImageData(S,S),hgt=new Float32Array(S*S);
+  for(let y=0;y<S;y++){const v=y/S;for(let x=0;x<S;x++){const u=x/S,warp=fb(u,v,3,2,3),rings=u*58+warp*2.2+fb(u,v,16,2,2)*.5,tri=Math.abs(rings-Math.floor(rings)-.5)*2,late=tri*tri;
+    const fibre=fb(u,v,170,6,2),pore=Math.pow(fb(u,v,210,48,1),4),streak=Math.pow(fb(u,v,24,3,2),3),tone=.86+.28*fb(u,v,2,2,2),dk=Math.min(1,late*.46+(1-fibre)*.3+pore*.5+streak*.3),i=(y*S+x)*4;
+    ia.data[i]=(64-dk*46)*tone;ia.data[i+1]=(38-dk*29)*tone;ia.data[i+2]=(23-dk*18)*tone;ia.data[i+3]=255;
+    const r=Math.min(255,(.4+pore*.3+late*.08)*255);ir.data[i]=ir.data[i+1]=ir.data[i+2]=r;ir.data[i+3]=255;hgt[y*S+x]=1-dk;}}
+  for(let y=0;y<S;y++)for(let x=0;x<S;x++){const l=hgt[y*S+((x+S-1)%S)],r=hgt[y*S+((x+1)%S)],t=hgt[((y+S-1)%S)*S+x],b=hgt[((y+1)%S)*S+x];
+    let nx=(l-r)*1.2,ny=(b-t)*1.2,nz=1;const m=Math.hypot(nx,ny,nz);nx/=m;ny/=m;nz/=m;const i=(y*S+x)*4;inn.data[i]=(nx*.5+.5)*255;inn.data[i+1]=(ny*.5+.5)*255;inn.data[i+2]=(nz*.5+.5)*255;inn.data[i+3]=255;}
+  alb.getContext('2d').putImageData(ia,0,0);nor.getContext('2d').putImageData(inn,0,0);rou.getContext('2d').putImageData(ir,0,0);
+  const tx=(c,srgb)=>{const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=MAXA;if(srgb)t.colorSpace=THREE.SRGBColorSpace;return t;};
+  return {map:tx(alb,true),normalMap:tx(nor,false),roughnessMap:tx(rou,false)};
+}
+const woodMaps=makeWoodMaps(1024);
+const woodParams={...woodMaps,roughness:1,metalness:0,normalScale:new THREE.Vector2(.5,.5),clearcoat:.55,clearcoatRoughness:.32,envMapIntensity:.6};
+
+/* ---------- the door ---------- */
+const W=3.1,H=W*4/3,D=.46,FRW=.22,MID=.1,PANH=.86,REC=.17;            // width, height, thickness, stile width, mid rail, lower panel, how far the paper sits back
+const winL=-W/2+FRW,winR=W/2-FRW,winT=H/2-FRW,winB=-H/2+FRW+PANH+MID,winW=winR-winL,winH=winT-winB,winCy=(winT+winB)/2;   // the shoji window
+const zPaper=D/2-REC,panY=-H/2+FRW+PANH/2,panW=winW-.1,panH=PANH-.1,zPan=D/2-.085,PULLX=panW/2-.34;
+const TILE=1.5;
+function boxUV(g,swap){const p=g.attributes.position,n=g.attributes.normal,uv=g.attributes.uv,s=1/TILE;
+  for(let i=0;i<p.count;i++){const ax=Math.abs(n.getX(i)),ay=Math.abs(n.getY(i)),az=Math.abs(n.getZ(i));let a,b;
+    if(az>=ax&&az>=ay){a=p.getX(i);b=p.getY(i);}else if(ax>=ay){a=p.getZ(i);b=p.getY(i);}else{a=p.getX(i);b=p.getZ(i);}
+    uv.setXY(i,(swap?b:a)*s,(swap?a:b)*s);}return g;}
+const rbox=(w,h,d,r,x,y,z,swap)=>{const g=new RoundedBoxGeometry(w,h,d,4,r);g.translate(x,y,z);return boxUV(g,swap);};
+const frameGeo=mergeGeometries([
+  rbox(FRW,H,D,.032,-W/2+FRW/2,0,0,false),rbox(FRW,H,D,.032,W/2-FRW/2,0,0,false),                                          // stiles
+  rbox(winW,FRW,D,.032,0,H/2-FRW/2,0,true),rbox(winW,FRW,D,.032,0,-H/2+FRW/2,0,true),rbox(winW,MID,D,.026,0,winB-MID/2,0,true),   // top, bottom and middle rails
+  (()=>{const g=new THREE.BoxGeometry(W-.04,H-.04,.05);g.translate(0,0,-D/2+.045);return boxUV(g,false).toNonIndexed();})(),   // back board (rounded boxes are non-indexed, so this one has to be too)
+  rbox(panW,panH,.12,.02,0,panY,zPan-.06,true)                                                                              // the raised lower panel
+]);
+const latticeGeo=(()=>{const g=[],bw=.024,bd=.05,zc=zPaper+bd/2;
+  for(let i=1;i<4;i++){const b=new THREE.BoxGeometry(bw,winH,bd);b.translate(winL+winW*i/4,winCy,zc);g.push(b);}
+  for(let j=1;j<5;j++){const b=new THREE.BoxGeometry(winW,bw,bd-.004);b.translate(0,winB+winH*j/5,zc-.002);g.push(b);}return mergeGeometries(g);})();
+const trimGeo=(()=>{const g=[],t=.014,tz=.058,zc=zPaper+tz/2,bx=(w,h,x,y,dz=0)=>{const b=new RoundedBoxGeometry(w,h,tz-dz,3,.0055);b.translate(x,y,zc-dz/2);g.push(b);};
+  bx(winW,t,0,winT-t/2);bx(winW,t,0,winB+t/2);bx(t,winH-2*t,winL+t/2,winCy,.004);bx(t,winH-2*t,winR-t/2,winCy,.004);return mergeGeometries(g);})();
+/* gold corner protector: a bevelled L-shaped plate, a darker inlaid line along it, three domed rivets. (hx, vy) = the directions the two arms run from the corner */
+const AL=.38,AW=.075,CUT=AW*.62,BV=.014,PD=.004,NI=g=>g.index?g.toNonIndexed():g;
+function bracket(hx,vy,ox,oy,oz){
+  const sh=new THREE.Shape();sh.moveTo(0,0);sh.lineTo(hx*AL,0);sh.lineTo(hx*(AL-CUT),vy*AW);sh.lineTo(hx*AW,vy*AW);sh.lineTo(hx*AW,vy*(AL-CUT));sh.lineTo(0,vy*AL);sh.closePath();
+  const pl=new THREE.ExtrudeGeometry(sh,{depth:PD,bevelEnabled:true,bevelThickness:BV,bevelSize:BV,bevelOffset:-BV,bevelSegments:6,curveSegments:1});pl.translate(0,0,BV);
+  {const P=pl.attributes.position,Nn=pl.attributes.normal,span=(AW-2*BV)/2;      // the flat face is given a crowned normal (tilting away from the arm's centre line), so it carries a gradient instead of one colour
+    for(let i=0;i<P.count;i++)if(Nn.getZ(i)>.99&&P.getZ(i)>PD+2*BV-1e-4){const x=hx*P.getX(i),y=vy*P.getY(i),ox=clamp((x-AW/2)/span,-1,1),oy=clamp((y-AW/2)/span,-1,1);
+      const tx=y>AW+1e-4?ox:x<=AW+1e-4?ox:0,ty=x>AW+1e-4?oy:y<=AW+1e-4?oy:0,v=new THREE.Vector3(hx*tx*.6,vy*ty*.6,1).normalize();Nn.setXYZ(i,v.x,v.y,v.z);}}
+  const parts=[NI(pl)];
+  [[AW*.5,AW*.5],[AL-AW*1.5,AW*.5],[AW*.5,AL-AW*1.5]].forEach(([x,y])=>{const r=new THREE.SphereGeometry(.0165,18,12);r.scale(1,1,.6);r.translate(hx*x,vy*y,PD+2*BV);parts.push(NI(r));});
+  const o=AW*.3,w=.012,e=AL-AW*1.15,L=new THREE.Shape();L.moveTo(hx*(o-w/2),vy*(o-w/2));L.lineTo(hx*e,vy*(o-w/2));L.lineTo(hx*e,vy*(o+w/2));L.lineTo(hx*(o+w/2),vy*(o+w/2));L.lineTo(hx*(o+w/2),vy*e);L.lineTo(hx*(o-w/2),vy*e);L.closePath();
+  const inl=new THREE.ExtrudeGeometry(L,{depth:.0035,bevelEnabled:false});inl.translate(0,0,PD+2*BV-.0012);
+  const gp=mergeGeometries(parts),gd=NI(inl);gp.translate(ox,oy,oz);gd.translate(ox,oy,oz);return {gp,gd};
+}
+const bracketSet=(list)=>{const bs=list.map(a=>bracket(...a));return {gold:mergeGeometries(bs.map(b=>b.gp)),deep:mergeGeometries(bs.map(b=>b.gd))};};
+const frameBr=bracketSet([[1,-1,-W/2,H/2,D/2-.002],[-1,-1,W/2,H/2,D/2-.002],[1,1,-W/2,-H/2,D/2-.002],[-1,1,W/2,-H/2,D/2-.002]]);
+const pullGeo=(()=>{const pts=[[0,.016],[.034,.018],[.062,.034],[.072,.038],[.092,.038],[.1,.03],[.1,.006],[.096,0],[0,0]].map(([r,y])=>new THREE.Vector2(r,y));
+  const g=new THREE.LatheGeometry(pts,56);g.rotateX(Math.PI/2);return g;})();
+const plateGeo=(()=>{const pts=[[0,.012],[.05,.0115],[.11,.0095],[.126,.0065],[.1335,.0025],[.135,0]].map(([r,y])=>new THREE.Vector2(r,y));const g=new THREE.LatheGeometry(pts,56);g.rotateX(Math.PI/2);return g;})();
+/* the doors are shoji leaves: a dark wood frame with kumiko bars and washi paper. Two of them slide sideways on two tracks inside the window recess and slip behind the
+   stiles (a clipping plane at the card's outer edge stands in for the wall pocket). Closed, the paper glows in the colourway and the shoe shows as a soft shadow on it. */
+const LWd=winW/2+.035,LHd=winH+.06,TRK=[zPaper+.14,zPaper+.108],LXC=[-winW/2+LWd/2,winW/2-LWd/2];
+const CLIPL=[new THREE.Plane(new THREE.Vector3(1,0,0),W/2-.03),new THREE.Plane(new THREE.Vector3(-1,0,0),W/2-.03)];
+const leafBarGeo=(()=>{const g=[],S=.056,bx=(w,hh,d,x,y)=>{const b=new RoundedBoxGeometry(w,hh,d,2,Math.min(.006,w/2-.001,hh/2-.001,d/2-.001));b.translate(x,y,0);g.push(b);};
+  bx(S,LHd,.03,-LWd/2+S/2,0);bx(S,LHd,.03,LWd/2-S/2,0);bx(LWd,S,.03,0,LHd/2-S/2);bx(LWd,S,.03,0,-LHd/2+S/2);                    // stiles and rails
+  bx(.022,LHd-2*S,.026,0,0);[1,2,3].forEach(k=>bx(LWd-2*S,.02,.022,0,-LHd/2+LHd*k/4));return mergeGeometries(g);})();             // the centre bar and three cross bars
+const leafPullGeo=(()=>{const a=plateGeo.clone();a.scale(.5,.5,.5);const b=pullGeo.clone();b.scale(.3,.3,.3);b.translate(0,0,.004);return mergeGeometries([NI(a),NI(b)]);})();   // a small round hikite
+const halfUV=(g,k)=>{const uv=g.attributes.uv;for(let j=0;j<uv.count;j++)uv.setX(j,(uv.getX(j)+k)*.5);return g;};      // left leaf takes the left half of a texture, right leaf the right half
+const tagGeo=(()=>{const g=new RoundedBoxGeometry(.3,1,.028,3,.01);g.translate(0,-.5,0);return g;})();
+const cordGeo=new THREE.CylinderGeometry(.006,.006,1,8);
+const canvasTex=(w,h,draw)=>{const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=MAXA;return t;};
+const blank=(()=>{const t=new THREE.DataTexture(new Uint8Array([255,255,255,0]),1,1);t.colorSpace=THREE.SRGBColorSpace;t.needsUpdate=true;return t;})();
+/* shoji paper: kozo fibres, darkened where the rails shade it */
+const shojiTex=(()=>{const src=paperTile(1024,17),c=document.createElement('canvas');c.width=c.height=1024;const g=c.getContext('2d');g.drawImage(src,0,0);
+  const edge=(x0,y0,x1,y1,al)=>{const gr=g.createLinearGradient(x0,y0,x1,y1);gr.addColorStop(0,`rgba(58,38,18,${al})`);gr.addColorStop(1,'rgba(58,38,18,0)');return gr;};
+  g.fillStyle=edge(0,0,0,110,.34);g.fillRect(0,0,1024,110);g.fillStyle=edge(0,0,90,0,.26);g.fillRect(0,0,90,1024);g.fillStyle=edge(1024,0,954,0,.15);g.fillRect(954,0,70,1024);g.fillStyle=edge(0,1024,0,964,.13);g.fillRect(0,964,1024,60);
+  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=MAXA;return t;})();
+const washi=(()=>{const t=new THREE.CanvasTexture(paperTile(1024,23));t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=MAXA;return t;})();
+/* backlight of the sliding paper: nearly even (a lamp behind the whole screen), a little dimmer toward the edges; the left leaf takes the left half, the right leaf the right half */
+const leafGlow=canvasTex(256,256,(g,w,h)=>{const v=g.createLinearGradient(0,0,0,h);v.addColorStop(0,'#c4c4c4');v.addColorStop(.35,'#f2f2f2');v.addColorStop(.55,'#fff');v.addColorStop(1,'#cfcfcf');g.fillStyle=v;g.fillRect(0,0,w,h);
+  g.globalCompositeOperation='multiply';const x=g.createLinearGradient(0,0,w,0);x.addColorStop(0,'#c8c8c8');x.addColorStop(.5,'#fff');x.addColorStop(1,'#c8c8c8');g.fillStyle=x;g.fillRect(0,0,w,h);});
+const glowTex=canvasTex(256,256,(g,w,h)=>{const gr=g.createRadialGradient(w/2,h*.48,6,w/2,h*.48,w*.62);gr.addColorStop(0,'#fff');gr.addColorStop(.5,'#9a9a9a');gr.addColorStop(1,'#303030');g.fillStyle=gr;g.fillRect(0,0,w,h);});
+/* a soft footprint under every door: contact shadow + a wider ambient one (no floor is visible, so the shadows only have to be believable) */
+const blobTex=canvasTex(512,128,(g,w,h)=>{g.shadowColor='rgba(46,28,10,1)';g.shadowBlur=34;g.shadowOffsetX=3000;g.fillStyle='#000';g.fillRect(-3000+96,40,w-192,h-80);});
+
+const imgCache={};const loadImg=u=>imgCache[u]||(imgCache[u]=new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.src=u;}));
+const fontsReady=Promise.all([document.fonts.load('700 40px Archivo'),document.fonts.load('800 40px "Shippori Mincho"'),document.fonts.load('700 30px "Zen Kaku Gothic New"')]).catch(()=>{});
+const FLOOR=-2.3,CY=-.05;
+
+/* ---------- what each door shows: product, its soft shadow, the nameplate, the price panel, the label ---------- */
+const imgTex=img=>{const t=new THREE.Texture(img);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=MAXA;t.needsUpdate=true;return t;};
+function softShadow(src,sw,sh,padK=.09,blurK=.5){const w=640,h=Math.round(w*sh/sw),pad=Math.round(w*padK);return {tex:canvasTex(w+pad*2,h+pad*2,(g)=>{g.shadowColor='rgba(40,22,6,.95)';g.shadowBlur=pad*blurK;g.shadowOffsetX=3000;g.drawImage(src,-3000+pad,pad,w,h);}),fx:(w+pad*2)/w,fy:(h+pad*2)/h};}
+function posterCanvas(kanji){const c=document.createElement('canvas');c.width=c.height=760;const g=c.getContext('2d');g.fillStyle='rgba(30,22,16,.93)';g.font='800 '+(kanji.length>1?400:560)+'px "Shippori Mincho", serif';g.textAlign='center';g.textBaseline='middle';g.fillText(kanji,380,400);return c;}
+const foil=(g,y,hh)=>{const gr=g.createLinearGradient(0,y-hh,0,y);gr.addColorStop(0,'#f8e7b0');gr.addColorStop(.5,'#e2c070');gr.addColorStop(1,'#b88c3c');return gr;};
+function infoTex(set,it){return canvasTex(1280,346,(g,w,h)=>{
+  g.strokeStyle='rgba(232,205,140,.6)';g.lineWidth=2.5;g.strokeRect(10,10,w-20,h-20);g.strokeStyle='rgba(0,0,0,.35)';g.lineWidth=3;g.strokeRect(5,5,w-10,h-10);
+  const text=(s,x,y,font,fill)=>{g.font=font;g.textAlign='left';g.textBaseline='alphabetic';g.fillStyle='rgba(0,0,0,.6)';g.fillText(s,x+2,y+3);g.fillStyle=fill;g.fillText(s,x,y);};
+  text(set==='shoes'?'LOW RUNNER 66':it.en.toUpperCase(),60,122,'700 74px Archivo, sans-serif',foil(g,122,60));
+  text('¥15,400',60,206,'500 60px Archivo, sans-serif','#f3e8cc');
+  g.strokeStyle=foil(g,270,40);g.lineWidth=2.5;g.strokeRect(60,236,176,50);g.font='600 22px Archivo, sans-serif';g.textAlign='center';g.fillStyle=foil(g,271,20);g.fillText('UNISEX',148,271);});}
+function labelTex(idx){return canvasTex(1362,140,(g,w,h)=>{g.fillStyle='rgba(58,38,22,.78)';g.font='600 30px Archivo, sans-serif';g.textBaseline='alphabetic';g.textAlign='left';g.fillText('BEST SELLER',44,70);g.textAlign='right';g.fillText(String(idx+1).padStart(2,'0'),w-44,70);});}
+function tagTex(name){const ch=[...name],n=ch.length,pitch=Math.min(.19,1.15/n),th=n*pitch+.3,px=600;
+  const tex=canvasTex(180,Math.round(th*px),(g,w,h)=>{const bg=g.createLinearGradient(0,0,w,0);bg.addColorStop(0,'#e9d6ae');bg.addColorStop(.5,'#f1e0bb');bg.addColorStop(1,'#dcc596');g.fillStyle=bg;g.fillRect(0,0,w,h);
+    for(let i=0;i<46;i++){g.strokeStyle=`rgba(120,86,48,${.05+rnd()*.12})`;g.lineWidth=.6+rnd()*1.3;const x=rnd()*w;g.beginPath();g.moveTo(x,0);for(let y=0;y<=h;y+=20)g.lineTo(x+Math.sin(y*.02+i)*2.2,y);g.stroke();}
+    g.fillStyle='#24180e';g.beginPath();g.arc(w/2,50,9,0,7);g.fill();
+    g.fillStyle='rgba(30,20,12,.93)';g.font=`800 ${Math.round(pitch*px*.84)}px "Shippori Mincho", serif`;g.textAlign='center';g.textBaseline='middle';ch.forEach((c,i)=>g.fillText(c,w/2,100+(i+.5)*pitch*px));});
+  return {tex,th};}
+const assetCache={};
+const getAssets=(set,idx)=>assetCache[set+idx]||(assetCache[set+idx]=(async()=>{
+  await fontsReady;const it=SETS[set].items[idx],a={tint:new THREE.Color(it.b)};let src,sw,sh;
+  if(set==='shoes'){const img=await loadImg(it.img);a.product=imgTex(img);a.pw=winW*.93;a.ph=a.pw*img.height/img.width;src=img;sw=img.width;sh=img.height;}
+  else{src=posterCanvas(it.kanji);a.product=new THREE.CanvasTexture(src);a.product.colorSpace=THREE.SRGBColorSpace;a.product.anisotropy=MAXA;a.pw=a.ph=1.9;sw=sh=760;}
+  const sf=softShadow(src,sw,sh);a.soft=sf.tex;a.sx=a.pw*sf.fx;a.sy=a.ph*sf.fy;
+  const sl=softShadow(src,sw,sh,.13,.34);a.sil=sl.tex;a.silx=a.pw*sl.fx;a.sily=a.ph*sl.fy;     // the shoe as a shadow on the paper
+  a.info=infoTex(set,it);a.label=labelTex(idx);a.tag=tagTex(it.jp);return a;})());
+
+/* ---------- build one door ---------- */
+const cards=[];
+function buildCard(i){
+  const holder=new THREE.Group(),tilt=new THREE.Group();holder.add(tilt);scene.add(holder);
+  const mats=[],mk=(Cls,params,base=1)=>{const m=new Cls({transparent:true,...params});m.userData.base=base;mats.push(m);return m;};
+  const wood=mk(THREE.MeshPhysicalMaterial,woodParams),lat=mk(THREE.MeshStandardMaterial,{color:0x2a190e,roughness:.55,envMapIntensity:.4});
+  const gold=mk(THREE.MeshStandardMaterial,{color:0xe6b04c,metalness:1,roughness:.2,envMap:METAL,envMapIntensity:1.35,side:THREE.DoubleSide});
+  const goldDeep=mk(THREE.MeshStandardMaterial,{color:0x8e5f16,metalness:1,roughness:.4,envMap:METAL,envMapIntensity:1.1});
+  const clipW=[new THREE.Plane(),new THREE.Plane()],cl={clippingPlanes:clipW,clipShadows:true};
+  const leafPaper=mk(THREE.MeshStandardMaterial,{map:washi,bumpMap:washi,bumpScale:.3,color:0xfaf2e2,roughness:.95,emissive:0xffffff,emissiveMap:leafGlow,emissiveIntensity:1.7,envMapIntensity:.15,side:THREE.DoubleSide,clippingPlanes:clipW},.97);
+  const barM=mk(THREE.MeshStandardMaterial,{color:0x3b2415,roughness:.5,envMapIntensity:.45,...cl});
+  const goldC=mk(THREE.MeshStandardMaterial,{color:0xe6b04c,metalness:1,roughness:.2,envMap:METAL,envMapIntensity:1.35,side:THREE.DoubleSide,...cl});
+  const silM=mk(THREE.MeshBasicMaterial,{map:blank,depthWrite:false,toneMapped:false,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1,clippingPlanes:clipW},.4);
+  const paper=mk(THREE.MeshStandardMaterial,{map:shojiTex,bumpMap:shojiTex,bumpScale:.4,roughness:.95,color:0xeee4cf,emissive:0xffffff,emissiveMap:glowTex,emissiveIntensity:1.15,envMapIntensity:.2});
+  const shoeM=mk(THREE.MeshStandardMaterial,{map:blank,emissive:0xffffff,emissiveMap:blank,emissiveIntensity:.6,color:0x808080,roughness:.9,alphaTest:.03,envMapIntensity:.12});
+  const softM=mk(THREE.MeshBasicMaterial,{map:blank,depthWrite:false,toneMapped:false},.55),infoM=mk(THREE.MeshBasicMaterial,{map:blank,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
+  const inkM=mk(THREE.MeshBasicMaterial,{map:blank,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
+  const tagSide=mk(THREE.MeshStandardMaterial,{color:0xd8c08e,roughness:.7,envMapIntensity:.2}),tagFront=mk(THREE.MeshStandardMaterial,{map:blank,roughness:.65,envMapIntensity:.2}),cordM=mk(THREE.MeshStandardMaterial,{color:0x7a2a22,roughness:.8});
+  const add=(geo,mat,ro,o={})=>{const m=new THREE.Mesh(geo,mat);m.renderOrder=i*20+ro;m.castShadow=o.cast!==false;m.receiveShadow=o.recv!==false;tilt.add(m);return m;};
+  const inner=[],inn=(m)=>{inner.push(m);return m;};
+  add(frameGeo,wood,0);
+  const paperM=inn(add(new THREE.PlaneGeometry(winW,winH),paper,1,{cast:false}));paperM.position.set(0,winCy,zPaper);
+  inn(add(latticeGeo,lat,2));inn(add(trimGeo,gold,3));add(frameBr.gold,gold,3);add(frameBr.deep,goldDeep,3);
+  add(pullGeo,gold,4).position.set(PULLX,panY,zPan+.01);add(plateGeo,gold,3).position.set(PULLX,panY,zPan+.005);
+  const ink=inn(add(new THREE.PlaneGeometry(winW,.273),inkM,5,{cast:false}));ink.position.set(0,winT-.14,zPaper+.002);
+  const info=add(new THREE.PlaneGeometry(panW-.12,panH-.1),infoM,6,{cast:false});info.position.set(0,panY,zPan+.002);
+  const soft=inn(add(new THREE.PlaneGeometry(1,1),softM,6,{cast:false}));soft.position.z=zPaper+.052;
+  const shoe=inn(add(new THREE.PlaneGeometry(1,1),shoeM,7));shoe.position.z=zPaper+.075;shoe.customDepthMaterial=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,map:blank,alphaTest:.5});
+  const tag=inn(add(tagGeo,[tagSide,tagSide,tagSide,tagSide,tagFront,tagSide],8));tag.position.set(winR-.31,winT-.2,zPaper+.08);
+  const cord=inn(add(cordGeo,cordM,8,{cast:false}));cord.scale.y=.2;cord.position.set(winR-.31,winT-.1,zPaper+.08);
+  /* the doors */
+  const leaves=[0,1].map(k=>{const g=new THREE.Group();g.position.set(LXC[k],winCy,TRK[k]);tilt.add(g);
+    const part=(geo,mat,ro,cast,z=0)=>{const m=new THREE.Mesh(geo,mat);m.renderOrder=i*20+ro;m.castShadow=cast;m.receiveShadow=true;m.position.z=z;g.add(m);return m;};
+    part(halfUV(new THREE.PlaneGeometry(LWd,LHd),k),leafPaper,10,false,-.004);part(leafBarGeo,barM,11,true);
+    const sil=part(halfUV(new THREE.PlaneGeometry(1,1),k),silM,12,false,-.0025);
+    part(leafPullGeo,goldC,12,true,.008).position.x=(k?-1:1)*(LWd/2-.14);
+    return {g,sil};});
+  const shadows=[0,1].map(k=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({map:blobTex,transparent:true,depthWrite:false,toneMapped:false,opacity:0}));m.rotation.x=-Math.PI/2;m.renderOrder=-10;scene.add(m);return m;});
+  cards.push({holder,tilt,mats,inner,leaves,clipW,leafPaper,silM,shoe,soft,paper,info,ink,tag,tagFront,shoeM,softM,shadows,dy:0,op:1});
+}
+for(let i=0;i<N;i++)buildCard(i);
+function applyAssets(c,a){
+  c.shoeM.map=a.product;c.shoeM.emissiveMap=a.product;c.shoe.customDepthMaterial.map=a.product;
+  c.shoe.scale.set(a.pw,a.ph,1);c.shoe.position.x=0;c.shoe.position.y=winCy-.06;
+  c.soft.material.map=a.soft;c.soft.scale.set(a.sx,a.sy,1);c.soft.position.set(.045,winCy-.06-.06,c.soft.position.z);
+  c.paper.emissive.copy(a.tint);c.leafPaper.emissive.copy(a.tint).lerp(new THREE.Color(0xfff4de),.55);c.silM.map=a.sil;
+  c.leaves.forEach((L,k)=>{L.sil.scale.set(a.silx/2,a.sily,1);L.sil.position.set((k?1:-1)*a.silx/4-LXC[k],-.06,-.0025);});
+  c.info.material.map=a.info;c.ink.material.map=a.label;c.tagFront.map=a.tag.tex;c.tag.scale.y=a.tag.th;
+}
+const setOpacity=c=>{c.mats.forEach(m=>{m.opacity=c.op*m.userData.base;});c.shadows[0].material.opacity=.46*c.op;c.shadows[1].material.opacity=.24*c.op;};
+
+/* the ring */
+const STEP=.58,R=6.8;
+let pos=0,target=0,drag=null,mx=0,my=0,setKey='shoes',current=-1,busy=false;
+const moodCol=new THREE.Color(),intro={v:reduce?1:0};
+function layout(){
+  const t=performance.now();
+  cards.forEach((c,i)=>{
+    let d=i-pos;d=((d+N/2)%N+N)%N-N/2;
+    const th=d*STEP,a=Math.abs(d),sc=1-clamp(a*.06,0,.22),yaw=th*1.22;
+    c.holder.position.set(Math.sin(th)*R,CY+c.dy+Math.sin(t/1900+i)*.02,Math.cos(th)*R-R);
+    c.holder.rotation.y=yaw;c.holder.scale.setScalar(sc);
+    const vis=a<3.1&&c.op>.001;c.holder.visible=vis;c.shadows.forEach(s=>s.visible=vis);
+    const near=1-clamp(a,0,1),open=sstep(.85,.1,a)*intro.v;          // closed until the card is almost in front, then they slide apart
+    {const tr=LWd+.02;c.leaves[0].g.position.x=LXC[0]-open*tr;c.leaves[1].g.position.x=LXC[1]+clamp((open-.08)/.92)*tr;}       // the right leaf follows a hair later
+    {const vi=open>.004;if(c.inner[0].visible!==vi)c.inner.forEach(m=>m.visible=vi);}
+    c.tilt.rotation.y=near*mx*.22;c.tilt.rotation.x=near*-my*.14;
+    if(vis){c.tilt.updateWorldMatrix(true,false);c.clipW[0].copy(CLIPL[0]).applyMatrix4(c.tilt.matrixWorld);c.clipW[1].copy(CLIPL[1]).applyMatrix4(c.tilt.matrixWorld);}
+    const hx=c.holder.position.x,hz=c.holder.position.z;
+    c.shadows[0].position.set(hx+.08*sc,FLOOR+.004,hz-.02);c.shadows[0].rotation.set(-Math.PI/2,0,yaw);c.shadows[0].scale.set(W*1.0*sc,D*2.8*sc,1);
+    c.shadows[1].position.set(hx+.3*sc,FLOOR+.002,hz-.28*sc);c.shadows[1].rotation.set(-Math.PI/2,0,yaw);c.shadows[1].scale.set(W*1.42*sc,D*8*sc,1);
+    setOpacity(c);
+  });
+}
+let lastPos=0;function update(){layout();{const t=performance.now()*.00028;glint.position.set(Math.sin(t)*8,3+Math.sin(t*1.7)*1.4,9.5+Math.cos(t)*1.5);}const v=Math.abs(pos-lastPos);lastPos=pos;U.speed+=((1+Math.min(v*40,6))-U.speed)*.12;
+  const A=hex(MOODS[moodIdx].tb);moodCol.setRGB(A[0],A[1],A[2],THREE.SRGBColorSpace);rim.color.lerp(moodCol,.04);}
+
+const capNo=$('#capNo'),capEn=$('#capEn'),capName=$('#capName'),capDesc=$('#capDesc'),ctrlNo=$('#ctrlNo');
+function setCaption(k,dir,immediate){
+  const it=SETS[setKey].items[k];
+  const swap=()=>{const t=String(k+1).padStart(2,'0')+' / 0'+N;capNo.textContent=t;ctrlNo.textContent=t;capEn.textContent=LANG==='en'?it.jp:it.en;capName.innerHTML='<span>'+(LANG==='en'?it.en:it.jp)+'</span>';capDesc.textContent=it.desc;};
+  if(immediate||reduce||!window.gsap){swap();return;}
+  gsap.to(capName.firstElementChild,{yPercent:-110*dir,opacity:0,duration:.22,ease:'power2.in',onComplete(){swap();gsap.fromTo(capName.firstElementChild,{yPercent:110*dir,opacity:0},{yPercent:0,opacity:1,duration:.5,ease:'power3.out'});}});
+  gsap.fromTo([capDesc,capEn],{opacity:0,y:8*dir},{opacity:1,y:0,duration:.5,delay:.2,ease:'power2.out'});
+}
+function go(to){
+  if(busy)return;
+  target=to;const st={v:pos};
+  gsap.to(st,{v:target,duration:reduce?0:1.05,ease:'power3.inOut',overwrite:true,onUpdate(){pos=st.v;update();}});
+  const k=((Math.round(target)%N)+N)%N;
+  if(k!==current){const dir=current<0?1:(((k-current)+N)%N<=N/2?1:-1);current=k;setCaption(k,dir);setMood(k);}
+}
+$('#next').onclick=()=>go(Math.round(target)+1);
+$('#prev').onclick=()=>go(Math.round(target)-1);
+addEventListener('keydown',e=>{if(readerOpen)return;if(e.key==='ArrowRight')go(Math.round(target)+1);if(e.key==='ArrowLeft')go(Math.round(target)-1);});
+let wheelLock=0;
+addEventListener('wheel',e=>{if(Math.abs(e.deltaX)<=Math.abs(e.deltaY))return;const now=performance.now();if(now<wheelLock||Math.abs(e.deltaX)<12)return;wheelLock=now+700;go(Math.round(target)+(e.deltaX>0?1:-1));},{passive:true});
+canvas.addEventListener('pointerdown',e=>{drag={x:e.clientX,t:target};});
+addEventListener('pointermove',e=>{const r=hero.getBoundingClientRect();mx=((e.clientX-r.left)/r.width)*2-1;my=((e.clientY-r.top)/r.height)*2-1;U.mx=(e.clientX-r.left)/r.width;U.my=1-(e.clientY-r.top)/r.height;if(drag&&!busy){const dx=(e.clientX-drag.x)/innerWidth;pos=drag.t-dx*3.4;update();const k=((Math.round(pos)%N)+N)%N;if(k!==current){const dir=(((k-current)+N)%N<=N/2?1:-1);current=k;setCaption(k,dir);setMood(k);}}});
+const endDrag=()=>{if(!drag)return;const moved=pos-drag.t;drag=null;go(Math.round(pos+(Math.abs(moved)>.12?Math.sign(moved)*.4:0)));};
+addEventListener('pointerup',endDrag);addEventListener('pointercancel',endDrag);
+
+/* tabs: the doors settle downward from the middle outward, the contents change while they are hidden, and they rise back the same way */
+async function changeSet(set){
+  if(busy)return;busy=true;
+  const as=await Promise.all(Array.from({length:N},(_,i)=>getAssets(set,i)));
+  const order=cards.map((c,i)=>{let d=i-pos;d=((d+N/2)%N+N)%N-N/2;return {c,a:Math.abs(d)};}).sort((x,y)=>x.a-y.a).map(o=>o.c);
+  setKey=set;
+  const swap=()=>{cards.forEach((c,i)=>applyAssets(c,as[i]));setCaption(((Math.round(target)%N)+N)%N,1);};
+  if(reduce||!window.gsap){swap();busy=false;return;}
+  const tl=gsap.timeline({onComplete(){busy=false;}});
+  tl.to(order,{dy:-.55,op:0,duration:.42,ease:'power2.in',stagger:.05},0);
+  tl.add(swap,'>');
+  tl.fromTo(order,{dy:.55},{dy:0,duration:.9,ease:'power3.out',stagger:.07},'>');
+  tl.to(order,{op:1,duration:.7,ease:'power2.out',stagger:.07},'<');
+}
+document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',()=>{
+  if(b.dataset.t===setKey||busy)return;
+  document.querySelectorAll('#tabs button').forEach(x=>x.setAttribute('aria-selected',String(x===b)));
+  changeSet(b.dataset.t);
+}));
+
+function resize(){const w=hero.clientWidth,h=hero.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;const p=w/h<.8;camera.fov=p?46:30;camera.position.set(0,.3,p?17:12.8);camera.lookAt(0,-.1,-1.5);camera.updateProjectionMatrix();}
+addEventListener('resize',resize);resize();startGen(0);
+Promise.all(Array.from({length:N},(_,i)=>getAssets('shoes',i))).then(as=>{cards.forEach((c,i)=>applyAssets(c,as[i]));go(0);current=0;setCaption(0,1,true);if(!reduce&&window.gsap)gsap.to(intro,{v:1,duration:1.5,delay:1.1,ease:'power2.inOut'});});
+let lastT=0,dtSum=0,dtN=0;
+function frame(now){
+  if(readerOpen){lastT=0;requestAnimationFrame(frame);return;}
+  if(lastT){const dt=now-lastT;if(dt<250){dtSum+=dt;if(++dtN===90){const avg=dtSum/dtN;dtSum=dtN=0;if(avg>27&&Q<2){Q++;renderer.setPixelRatio(PR[Q]);resize();}}}}
+  lastT=now;update();drawBg(now);renderer.render(scene,camera);requestAnimationFrame(frame);}
+requestAnimationFrame(frame);
+
+/* ---------- below the hero: a regular storefront ---------- */
+const gnav=$('#gnav');
+{const f=()=>gnav.classList.toggle('show',scrollY>hero.offsetHeight*.72);addEventListener('scroll',f,{passive:true});f();}
+const toHero=fn=>{scrollTo({top:0,behavior:reduce?'auto':'smooth'});setTimeout(fn,reduce?0:600);};
+document.querySelectorAll('a[href="#"]').forEach(a=>a.addEventListener('click',e=>e.preventDefault()));
+document.querySelectorAll('.cat').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();toHero(()=>{const b=$('#tabs button[data-t="'+a.dataset.t+'"]');if(b)b.click();});}));
+document.querySelectorAll('[data-hero]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();toHero(()=>{});}));
+/* product grid: one card per colourway; moving the cursor over the picture turns it to another view; a click takes you up to that colourway's door */
+/* photographs: tools/photos.py converts src/{cat_*,model_*,look_*}.png into cut/web and rewrites this list; a name that is not listed simply does not appear */
+const PHOTOS=new Set(/*photos:start*/[]/*photos:end*/),PH=n=>'cut/web/'+n+'.webp';
+document.querySelectorAll('.cat').forEach(a=>{const n='cat_'+a.dataset.t;if(!PHOTOS.has(n))return;a.querySelector('.cpw img').src=PH(n);a.classList.add('ph');});
+{const fg=[...document.querySelectorAll('.look figure')].filter(f=>PHOTOS.has(f.dataset.p));fg.forEach(f=>{f.querySelector('img').src=PH(f.dataset.p);f.hidden=false;});if(fg.length)$('#lookbook').hidden=false;}
+const WEB=p=>p.replace('cut/','cut/web/').replace('.png','.webp'),TAGS={0:'BEST SELLER',1:'BEST SELLER',4:'NEW',5:'NEW'};
+/* the shoe has two views: facing right (the profile, stored as side_*) and facing left. Over a picture, the half of it where the cursor is shows that view.
+   Each colourway has its own pair (cut/web/side_<colour>.webp, cut/web/left_<colour>.webp). */
+const VIEWS=[['right','右向き','Facing right'],['left','左向き','Facing left']];
+const colKey=k=>SHOES[k].img.replace(/^.*side_|\.png$/g,''),vSrc=(k,v)=>'cut/web/'+(v==='right'?'side':v)+'_'+colKey(k)+'.webp';
+const zoneOf=dx=>dx<0?'left':'right';
+const hoverOK=matchMedia('(hover:hover) and (pointer:fine)').matches&&!reduce;
+$('#pgrid').innerHTML=SHOES.map((s,i)=>`<a class="pc rv" href="#hero" data-i="${i}" style="--c:${s.b}"><span class="pc-img" data-v="right">${VIEWS.map(([v])=>v==='right'?`<img class="v on" data-v="right" src="${vSrc(i,'right')}" alt="Low Runner 66, ${s.en}" width="1200" height="526" loading="lazy" decoding="async">`:`<img class="v" data-v="${v}" data-src="${vSrc(i,v)}" alt="" decoding="async">`).join('')}${TAGS[i]?`<em class="pc-tag">${TAGS[i]}</em>`:''}</span><span class="pc-meta"><span><b data-en="${s.en}">${s.jp}</b><i data-en="Low Runner 66 · ${s.jp}">Low Runner 66, ${s.en}</i></span><span class="pc-price">¥15,400</span></span><span class="pc-dots">${SHOES.map((t,j)=>`<u style="--c:${t.b}"${j===i?' class="on"':''}></u>`).join('')}</span></a>`).join('');
+if(hoverOK)document.querySelectorAll('.pc-img').forEach(el=>{
+  const show=v=>{if(el.dataset.v===v)return;const t=el.querySelector('img[data-v='+v+']');if(!t||!t.complete||!t.naturalWidth)return;el.dataset.v=v;el.querySelectorAll('img.v').forEach(i=>i.classList.toggle('on',i===t));};
+  el.addEventListener('pointerenter',e=>{if(e.pointerType!=='mouse')return;el.querySelectorAll('img[data-src]').forEach(i=>{i.src=i.dataset.src;i.removeAttribute('data-src');});});
+  el.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;const r=el.getBoundingClientRect();show(zoneOf((e.clientX-r.left)/r.width-.5));});
+  el.addEventListener('pointerleave',()=>show('right'));
+});
+$('#pgrid').addEventListener('click',e=>{const a=e.target.closest('.pc');if(!a)return;e.preventDefault();const i=+a.dataset.i;toHero(()=>{const cur=Math.round(target);let d=((i-cur)%N+N)%N;if(d>N/2)d-=N;go(cur+d);});});
+/* the featured block follows the colourway chosen up in the hero. Default is the model photo when one is listed, else the shoe's profile; the cursor shows the view on its half of the picture; a thumbnail pins a view. */
+const ft={k:0,pick:'model',hov:null},ftImg=$('#ftImg'),ftStage=$('#ftStage'),ftCap=$('#ftCap'),thumbs=$('#ftThumbs');
+$('#ftSw').innerHTML=SHOES.map(s=>`<u style="--c:${s.b}"></u>`).join('');
+const mk=k=>'model_'+colKey(k);
+thumbs.innerHTML=[['model','モデル','On model'],...VIEWS].map(([v,jp,en])=>`<button type="button" data-v="${v}" aria-pressed="false" aria-label="${en}" data-en-aria-label="${en}"${v==='model'?' hidden':''}><img alt=""></button>`).join('');
+function ftSwap(src,model){if(ftImg.getAttribute('src')===src&&ftStage.classList.contains('is-model')===model)return;const im=new Image();im.onload=im.onerror=()=>{ftImg.style.opacity=0;setTimeout(()=>{ftStage.classList.toggle('is-model',model);ftImg.src=src;ftImg.style.opacity=1;},110);};im.src=src;}
+function ftRender(){const k=ft.k,has=PHOTOS.has(mk(k)),base=ft.pick==='model'?(has?'model':'right'):ft.pick,v=base==='model'?'model':(ft.hov||base);
+  thumbs.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.v===v)));ftStage.dataset.v=v;ftSwap(v==='model'?PH(mk(k)):vSrc(k,v),v==='model');}
+function syncFeature(k){ft.k=k;ft.hov=null;const s=SHOES[k],has=PHOTOS.has(mk(k));ftStage.style.setProperty('--c',s.b);thumbs.style.setProperty('--c',s.b);
+  ftCap.innerHTML='<b data-en="'+s.en+'">'+s.jp+'</b><span data-en="'+s.jp+'">'+s.en+'</span>';applyLang(ftCap);
+  thumbs.querySelectorAll('button').forEach(b=>{const v=b.dataset.v,im=b.querySelector('img');if(v==='model'){b.hidden=!has;if(has)im.src=PH(mk(k));}else im.src=vSrc(k,v);});ftRender();}
+thumbs.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;ft.pick=b.dataset.v;ft.hov=null;ftRender();});
+if(hoverOK){
+  ftStage.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')VIEWS.forEach(([v])=>{new Image().src=vSrc(ft.k,v);});});
+  ftStage.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse'||ftStage.dataset.v==='model')return;const r=ftStage.getBoundingClientRect(),z=zoneOf((e.clientX-r.left)/r.width-.5);if(z!==ft.hov){ft.hov=z;ftRender();}});
+  ftStage.addEventListener('pointerleave',()=>{if(ft.hov){ft.hov=null;ftRender();}});
+}
+syncFeature(ft.k);
+$('#nlForm').addEventListener('submit',e=>{e.preventDefault();const f=e.target,m=$('#nlMsg');if(!f.email.value||!f.email.checkValidity()){m.textContent=LANG==='en'?'Please check the email address.':'メールアドレスを確認してください。';return;}m.textContent=LANG==='en'?'Thank you. This is a concept page, so nothing is sent.':'ありがとうございます。これはコンセプトページのため、何も送信されません。';f.reset();});
+/* ---------- magazine: the sumi-e cover, and the reader that opens over the page ---------- */
+function paintCover(cv,idx){
+  const W=cv.width,H=cv.height,P=createPainter(W,H,7);
+  return P.scene(idx).then(sc=>{const pal=palOf(MOODS[idx]),pg=PAPER.getContext('2d').getImageData(0,0,1024,1024).data,g=cv.getContext('2d'),out=g.createImageData(W,H),o=out.data,lay=sc.layers;
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){const k=(y*W+x)*4,pk=(((y%512)*2)*1024+((x%512)*2))*4;let r=pg[pk]/255,gg=pg[pk+1]/255,b=pg[pk+2]/255;
+      for(let l=0;l<3;l++){const s=lay[l],ink=s[k]/255,ta=s[k+1]/255,tb=s[k+2]/255,sl=s[k+3]/255;
+        r*=1+(pal.ta[0]-1)*ta;gg*=1+(pal.ta[1]-1)*ta;b*=1+(pal.ta[2]-1)*ta;r*=1+(pal.tb[0]-1)*tb;gg*=1+(pal.tb[1]-1)*tb;b*=1+(pal.tb[2]-1)*tb;
+        r*=1+(.8-1)*sl;gg*=1+(.17-1)*sl;b*=1+(.13-1)*sl;r*=1+(pal.ink[0]-1)*ink;gg*=1+(pal.ink[1]-1)*ink;b*=1+(pal.ink[2]-1)*ink;}
+      o[k]=r*255;o[k+1]=gg*255;o[k+2]=b*255;o[k+3]=255;}
+    g.putImageData(out,0,0);});
+}
+{const cv=$('#mcInk');if(cv){const io=new IntersectionObserver(es=>{if(es[0].isIntersecting){io.disconnect();paintCover(cv,2).catch(console.error);}},{rootMargin:'500px'});io.observe(cv);}}
+const reader=$('#reader'),rdBody=$('#rdBody'),rdVt=$('#rdVt'),rdVm=$('#rdVm'),rdHt=$('#rdHt'),rdSub=$('#rdSub'),rdIdEl=$('#rdId'),rdScroll=$('#rdScroll'),rdNext=$('#rdNext'),rdNextT=$('#rdNextT'),rdNextL=$('#rdNextL'),rdClose=$('#rdClose');
+const MAGIDS=['colour','design','motion','about'];let readerOpen=false,rdLang='ja',rdFocus=null,rdCur=null;
+const inertTargets=()=>['#hero','#gnav','main','footer.foot'].map(s=>document.querySelector(s)).filter(Boolean);
+function updNext(){if(!rdCur)return;const n=MAGIDS[(MAGIDS.indexOf(rdCur)+1)%MAGIDS.length],d=document.getElementById('t-'+n).dataset;rdNext.href='#m-'+n;rdNextT.textContent=rdLang==='ja'?d.ja:d.en;rdNextL.textContent=rdLang==='ja'?'次のコラム':'Next column';}
+function setRdLang(l){rdLang=l;reader.dataset.lang=l;reader.querySelectorAll('.rd-lang button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.l===l)));updNext();}
+function openReader(id){
+  const t=document.getElementById('t-'+id);if(!t)return;const d=t.dataset,first=!readerOpen;if(first)rdFocus=document.activeElement;
+  rdCur=id;rdVt.replaceChildren(...d.vt.split('|').flatMap((s,i)=>i?[document.createElement('br'),s]:[s]));rdVt.setAttribute('aria-label',d.ja);rdHt.textContent=d.en;rdSub.textContent=d.en;rdVm.textContent='No.'+d.no+'　'+d.cat;rdIdEl.textContent='No.'+d.no+' / '+d.cat;
+  rdBody.replaceChildren(t.content.cloneNode(true));rdScroll.scrollTop=0;setRdLang(rdLang);
+  if(first){reader.classList.add('open');reader.setAttribute('aria-hidden','false');document.documentElement.classList.add('rd-lock');inertTargets().forEach(e=>{e.inert=true;});readerOpen=true;setTimeout(()=>rdClose.focus({preventScroll:true}),60);}
+}
+function closeReader(){
+  if(!readerOpen)return;readerOpen=false;reader.classList.remove('open');reader.setAttribute('aria-hidden','true');document.documentElement.classList.remove('rd-lock');inertTargets().forEach(e=>{e.inert=false;});
+  if(rdFocus&&rdFocus.focus)rdFocus.focus({preventScroll:true});
+}
+const rdRoute=()=>{const m=/^#m-([a-z]+)$/.exec(location.hash);if(m&&MAGIDS.includes(m[1]))openReader(m[1]);else closeReader();};
+addEventListener('hashchange',rdRoute);
+rdClose.addEventListener('click',()=>{location.hash='#magazine';});
+reader.querySelectorAll('.rd-lang button').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.l)));
+addEventListener('keydown',e=>{if(e.key==='Escape'&&readerOpen)location.hash='#magazine';});
+rdRoute();
+/* ---------- language: Japanese is the page; English swaps in every element that carries data-en (innerHTML) or data-en-aria-label / data-en-placeholder.
+   The Japanese original is kept in data-ja / data-ja-<attr>, so switching back is exact. The magazine articles have their own JP and EN text and follow the same switch. ---------- */
+const lsGet=()=>{try{return localStorage.getItem('lr66-lang');}catch(e){return null;}},lsSet=v=>{try{localStorage.setItem('lr66-lang',v);}catch(e){}};
+function applyLang(root){
+  const en=LANG==='en';
+  root.querySelectorAll('[data-en]').forEach(el=>{if(el.dataset.ja===undefined)el.dataset.ja=el.innerHTML;el.innerHTML=en?el.dataset.en:el.dataset.ja;});
+  ['aria-label','placeholder'].forEach(a=>root.querySelectorAll('[data-en-'+a+']').forEach(el=>{const j='data-ja-'+a;if(!el.hasAttribute(j))el.setAttribute(j,el.getAttribute(a)||'');el.setAttribute(a,en?el.getAttribute('data-en-'+a):el.getAttribute(j));}));
+}
+function setLang(l,save=true){
+  LANG=l==='en'?'en':'ja';document.documentElement.lang=LANG;if(save)lsSet(LANG);
+  applyLang(document);
+  document.querySelectorAll('.lang button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.l===LANG)));
+  setRdLang(LANG);
+  try{syncFeature(ft.k);setCaption(Math.max(0,current),1,true);}catch(e){}
+}
+document.querySelectorAll('.lang button').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.l)));
+{const q=new URLSearchParams(location.search).get('lang'),want=q==='en'||q==='ja'?q:lsGet();setLang(want==='en'?'en':'ja',false);}
+/* things settle in as they scroll into view */
+if('IntersectionObserver' in window&&!reduce){
+  document.documentElement.classList.add('js-rv');
+  const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}}),{rootMargin:'0px 0px -6% 0px'});
+  document.querySelectorAll('.rv').forEach((el,i)=>{if(el.classList.contains('pc'))el.style.transitionDelay=(i%3)*90+'ms';io.observe(el);});
+}
+</script>
+</body>
+</html>

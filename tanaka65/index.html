@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>田中六五 — 田の中にある酒蔵</title>
+<meta name="description" content="Concept work: a scroll story for Tanaka 65, the junmai sake of Shiraito Shuzo, Itoshima.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700;800&family=Cormorant+Garamond:wght@300;400&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* tokens */
+:root{
+  --ink:#0C0C0B; --ink-2:#151412; --paper:#F2EEE6; --muted:rgba(242,238,230,.64); --faint:rgba(242,238,230,.38);
+  --line:rgba(242,238,230,.18); --amber:#C98B3E;
+  --mincho:"Shippori Mincho B1",serif; --num:"Cormorant Garamond",serif; --sans:"Hanken Grotesk",system-ui,sans-serif;
+  --gutter:clamp(16px,4vw,64px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--ink)}
+body{background:var(--ink);color:var(--paper);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+img{display:block}
+.k{font:500 11px/1 var(--sans);letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+.v{writing-mode:vertical-rl;text-orientation:upright;font-family:var(--mincho);font-weight:700;letter-spacing:.14em;line-height:1.7}
+
+/* header */
+header{position:fixed;inset:0 0 auto 0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:24px var(--gutter);mix-blend-mode:difference;pointer-events:none}
+.mark{font:800 18px/1 var(--mincho);letter-spacing:.3em}
+.prog{position:fixed;left:var(--gutter);bottom:28px;z-index:20;display:flex;gap:16px;align-items:center;pointer-events:none}
+.prog ol{display:flex;gap:6px;list-style:none}
+.prog li{width:24px;height:1px;background:var(--faint);transform-origin:left;transition:background .4s,transform .4s}
+.prog li.on{background:var(--paper);transform:scaleX(1.6)}
+
+/* generic pinned scene */
+.scene{position:relative;height:100vh;overflow:hidden}
+.bg{position:absolute;inset:-6%;will-change:transform,filter}
+.bg picture,.bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.season-img{opacity:0}
+.shade{position:absolute;inset:0;pointer-events:none}
+.copy{position:absolute;z-index:3}
+.line{opacity:0;will-change:opacity,transform}
+
+/* 01 field */
+#field .shade{background:linear-gradient(180deg,rgba(12,12,11,.35) 0%,rgba(12,12,11,0) 30%,rgba(12,12,11,0) 55%,rgba(12,12,11,.7) 100%),linear-gradient(270deg,rgba(12,12,11,.38) 0%,rgba(12,12,11,0) 32%)}
+#field .title{right:var(--gutter);top:14vh;font-size:clamp(34px,4.6vw,68px);color:var(--paper);text-shadow:0 2px 30px rgba(0,0,0,.25)}
+#field .lede{left:var(--gutter);bottom:96px;max-width:440px}
+#field .lede p{font:500 15px/1.9 var(--mincho);color:var(--paper);margin-top:16px}
+#field .season{right:calc(var(--gutter) + clamp(80px,9vw,140px));top:14vh;font-size:clamp(20px,2vw,28px);color:var(--paper)}
+#field .season span{position:absolute;top:0;right:0;opacity:0;white-space:nowrap;text-shadow:0 0 18px rgba(0,0,0,.55),0 0 2px rgba(0,0,0,.4)}
+
+/* 02 sixty-five */
+#sixtyfive .shade{background:radial-gradient(ellipse at 50% 52%,rgba(12,12,11,0) 0%,rgba(12,12,11,.35) 55%,rgba(12,12,11,.85) 100%)}
+.ring{position:absolute;left:57.5%;top:58%;width:min(30vw,340px);aspect-ratio:1;transform:translate(-50%,-50%);z-index:2;pointer-events:none}
+.ring svg{width:100%;height:100%;overflow:visible}
+.big{position:absolute;right:var(--gutter);bottom:4vh;z-index:3;font:300 clamp(160px,24vw,380px)/.8 var(--num);letter-spacing:-.04em;color:var(--paper);font-variant-numeric:lining-nums tabular-nums}
+.big sup{font-size:.22em;vertical-align:top;margin-left:.08em;color:var(--amber);letter-spacing:0}
+#sixtyfive .copy{left:var(--gutter);top:18vh;max-width:420px}
+#sixtyfive h2{font:700 clamp(28px,3vw,44px)/1.5 var(--mincho);letter-spacing:.08em;margin:20px 0 20px}
+#sixtyfive p{font:500 15px/1.9 var(--mincho);color:var(--muted)}
+.ratio{margin-top:28px;display:flex;gap:24px}
+.ratio div{border-top:1px solid var(--line);padding-top:12px;min-width:120px}
+.ratio b{display:block;font:400 34px/1 var(--num);color:var(--paper)}
+.ratio span{font:500 11px/1.6 var(--sans);letter-spacing:.14em;color:var(--muted)}
+
+/* 03 hanegi */
+#hanegi .bg{inset:0;transform-origin:90% 55%}
+#hanegi .shade{background:linear-gradient(180deg,rgba(12,12,11,.55) 0%,rgba(12,12,11,0) 45%),linear-gradient(90deg,rgba(12,12,11,.35) 0%,rgba(12,12,11,0) 45%)}
+#hanegi .copy{left:22vw;top:9vh;display:flex;gap:24px;flex-direction:row-reverse;align-items:flex-start}
+#hanegi .copy .t{font-size:clamp(28px,3.2vw,48px)}
+#hanegi .copy .s{font-size:clamp(15px,1.25vw,18px);font-weight:500;color:var(--paper)}
+#drops{position:absolute;inset:0;z-index:2;pointer-events:none}
+.pota{position:absolute;left:var(--gutter);bottom:12vh;z-index:3;font:700 clamp(28px,3vw,44px)/1 var(--mincho);letter-spacing:.3em}
+.black{position:absolute;inset:0;background:var(--ink);opacity:0;z-index:4;pointer-events:none}
+
+/* 04 bottle sequence */
+#bottle{background:#000}
+#seq{position:absolute;inset:0;width:100%;height:100%}
+#bottle .copy{left:var(--gutter);top:50%;transform:translateY(-50%);max-width:420px}
+#bottle h2{font:800 clamp(44px,5vw,76px)/1.2 var(--mincho);letter-spacing:.12em;margin:18px 0 8px}
+#bottle .tag{font:500 15px/1.9 var(--mincho);color:var(--muted);margin-bottom:28px}
+.spec{display:grid;grid-template-columns:auto 1fr;border-top:1px solid var(--line)}
+.spec dt,.spec dd{padding:12px 0;border-bottom:1px solid var(--line)}
+.spec dt{font:500 11px/1.9 var(--sans);letter-spacing:.16em;color:var(--muted);padding-right:28px}
+.spec dd{font:500 15px/1.6 var(--mincho)}
+
+/* 05 teiban */
+#teiban{display:flex;align-items:center;justify-content:center;background:var(--ink)}
+#teiban .phrase{font-size:clamp(24px,3vw,46px);line-height:2.4}
+#teiban .phrase span{display:block;white-space:nowrap;opacity:.12}
+#teiban .phrase .last{color:var(--amber)}
+#teiban .note{position:absolute;left:var(--gutter);bottom:96px;max-width:360px;font:500 14px/1.9 var(--mincho);color:var(--muted)}
+
+/* 06 where */
+#where{min-height:100vh;padding:20vh var(--gutter) 12vh;background:var(--paper);color:var(--ink);display:grid;grid-template-columns:5fr 7fr;gap:clamp(32px,6vw,96px)}
+#where .k{color:rgba(12,12,11,.6)}
+#where h2{font:700 clamp(30px,3.4vw,52px)/1.5 var(--mincho);letter-spacing:.06em;margin-top:20px}
+#where p{font:500 16px/1.9 var(--mincho);color:rgba(12,12,11,.72);margin-top:24px;max-width:30em}
+.areas{list-style:none;border-top:1px solid rgba(12,12,11,.2)}
+.areas li{display:flex;justify-content:space-between;align-items:baseline;padding:18px 0;border-bottom:1px solid rgba(12,12,11,.2)}
+.areas b{font:700 18px/1.4 var(--mincho);letter-spacing:.06em}
+.areas span{font:500 12px/1.4 var(--sans);letter-spacing:.12em;color:rgba(12,12,11,.6)}
+.cta{display:inline-flex;align-items:center;gap:14px;margin-top:40px;padding:16px 24px;background:var(--ink);color:var(--paper);text-decoration:none;font:600 12px/1 var(--sans);letter-spacing:.2em;transition:background .25s,transform .25s}
+.cta i{font-style:normal;transition:transform .25s}
+.cta:hover{background:#2a2622}.cta:hover i{transform:translateX(4px)}
+.cta:active{transform:scale(.98)}
+.cta:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
+
+footer{background:var(--paper);color:rgba(12,12,11,.62);padding:40px var(--gutter) 56px;border-top:1px solid rgba(12,12,11,.14);display:grid;grid-template-columns:1fr 1fr;gap:24px;font:400 12px/1.8 var(--sans)}
+footer b{color:var(--ink);font-weight:600}
+footer .notice{font:500 13px/1.9 var(--mincho);color:var(--ink)}
+
+@media (max-width:760px){
+  #where{grid-template-columns:1fr;padding-top:14vh}
+  footer{grid-template-columns:1fr}
+  .big{font-size:clamp(120px,40vw,200px)}
+  #sixtyfive .copy{top:12vh;right:var(--gutter)}
+  #bottle .copy{top:auto;bottom:10vh;transform:none;right:var(--gutter)}
+  #bottle h2{font-size:40px}
+  .ring{width:46vw}
+  #field .season{right:calc(var(--gutter) + 64px)}
+  #field .bg img{object-position:80% 50%}
+  #sixtyfive .ring{left:82%;top:59%}
+  #bottle .tag{display:none}
+  #bottle .copy{bottom:7vh}
+  .spec dt,.spec dd{padding:8px 0}
+}
+@media (prefers-reduced-motion: reduce){ .line{opacity:1!important;transform:none!important} }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+</head>
+<body>
+<header><div class="mark">田中六五</div><div class="k">Concept work</div></header>
+<div class="prog"><ol id="prog"><li></li><li></li><li></li><li></li><li></li><li></li></ol></div>
+
+<!-- 01 -->
+<section class="scene" id="field">
+  <div class="bg">
+    <picture><source media="(max-width:760px)" srcset="web/img/s01_field_spring_m.webp"><img src="web/img/s01_field_spring.webp" alt="糸島の田んぼと酒蔵 — 初夏"></picture>
+    <picture class="season-img" id="summer"><source media="(max-width:760px)" srcset="web/img/s02_field_summer_m.webp"><img src="web/img/s02_field_summer.webp" alt="夏の田んぼ"></picture>
+    <picture class="season-img" id="autumn"><source media="(max-width:760px)" srcset="web/img/s03_field_autumn_m.webp"><img src="web/img/s03_field_autumn.webp" alt="秋の田んぼ"></picture>
+  </div>
+  <div class="shade"></div>
+  <h1 class="copy v title line">田の中にある酒蔵。</h1>
+  <div class="copy v season"><span>初夏の田植え。</span><span>緑の稲が、風にそよぐ夏。</span><span>黄金色の頭を垂れる秋。</span></div>
+  <div class="copy lede line">
+    <div class="k">Itoshima, Fukuoka — since 1855</div>
+    <p>福岡・糸島。山田錦の田んぼに囲まれた蔵で、<br>地元の米だけを使って醸す。</p>
+  </div>
+</section>
+
+<!-- 02 -->
+<section class="scene" id="sixtyfive">
+  <div class="bg"><picture><source media="(max-width:760px)" srcset="web/img/s05_polished_m.webp"><img src="web/img/s05_polished.webp" alt="磨かれた酒米"></picture></div>
+  <div class="shade"></div>
+  <div class="ring"><svg viewBox="-100 -100 200 200" aria-hidden="true">
+    <circle r="96" fill="none" stroke="rgba(242,238,230,.35)" stroke-width=".6" stroke-dasharray="2 4"/>
+    <circle id="core" r="96" fill="none" stroke="#C98B3E" stroke-width="1"/>
+  </svg></div>
+  <div class="copy line">
+    <div class="k">Polishing ratio</div>
+    <h2>舌に馴染む、<br>65％。</h2>
+    <p>大吟醸でもなく、吟醸でもなく、<br>誰もが普段使いできる純米酒。</p>
+    <div class="ratio"><div><b id="keep">100%</b><span>残す</span></div><div><b id="cut">0%</b><span>削る</span></div></div>
+  </div>
+  <div class="big"><span id="num">100</span><sup>%</sup></div>
+</section>
+
+<!-- 03 -->
+<section class="scene" id="hanegi">
+  <div class="bg"><picture><source media="(max-width:760px)" srcset="web/img/s08_hanegi_m.webp"><img src="web/img/s08_hanegi.webp" alt="ハネ木搾り"></picture></div>
+  <div class="shade"></div>
+  <canvas id="drops"></canvas>
+  <div class="copy">
+    <div class="v t line">ハネ木搾り<br>という伝統。</div>
+    <div class="v s line">一本の樫の木と、石。</div>
+    <div class="v s line">時に一トンを超える力で、</div>
+    <div class="v s line">やさしく搾る。</div>
+  </div>
+  <div class="pota line">ポタ、ポタ。</div>
+  <div class="black"></div>
+</section>
+
+<!-- 04 -->
+<section class="scene" id="bottle">
+  <canvas id="seq"></canvas>
+  <div class="copy line">
+    <div class="k">Tanaka 65 — Junmai</div>
+    <h2>田中六五</h2>
+    <p class="tag">田の中で生まれ、多の中で選ばれ、他の中で際立つ。</p>
+    <dl class="spec">
+      <dt>原料米</dt><dd>糸島産山田錦 100%</dd>
+      <dt>精米歩合</dt><dd>65%</dd>
+      <dt>アルコール分</dt><dd>15度</dd>
+      <dt>容量</dt><dd>1,800ml / 720ml</dd>
+    </dl>
+  </div>
+</section>
+
+<!-- 05 -->
+<section class="scene" id="teiban">
+  <div class="phrase v"><span>オンリーワンでもなく、</span><span>ナンバーワンでもなく、</span><span class="last">定番。</span></div>
+  <p class="note">福岡でごく自然に愛され、日常的に親しまれる酒を。</p>
+</section>
+
+<!-- 06 -->
+<section id="where">
+  <div>
+    <div class="k">Where to buy</div>
+    <h2>田中六五は、<br>特約店でのみ。</h2>
+    <p>限定流通の酒です。特約店以外の店舗、蔵の店頭、電話、蔵のオンラインストアでは取り扱いがありません。</p>
+    <a class="cta" href="http://www.shiraito.com/news/326/" target="_blank" rel="noopener">特約店一覧を見る <i>→</i></a>
+  </div>
+  <ul class="areas">
+    <li><b>九州</b><span>FUKUOKA · KITAKYUSHU · KUMAMOTO</span></li>
+    <li><b>関西</b><span>OSAKA · HYOGO</span></li>
+    <li><b>中国</b><span>HIROSHIMA</span></li>
+    <li><b>中部</b><span>MIE · FUKUI</span></li>
+    <li><b>関東</b><span>TOKYO · KANAGAWA · CHIBA · TOCHIGI</span></li>
+    <li><b>信越・東北・北海道</b><span>NIIGATA · MIYAGI · FUKUSHIMA · SAPPORO</span></li>
+  </ul>
+</section>
+<footer>
+  <div class="notice">お酒は二十歳になってから。飲酒運転は法律で禁止されています。<br>妊娠中や授乳期の飲酒は、胎児・乳児の発育に悪影響を与えるおそれがあります。飲みすぎに注意。</div>
+  <div><b>Concept work.</b> Not affiliated with Shiraito Shuzo. Quoted phrases and product facts: shiraito.com (ABOUT / 65 / PRODUCT / 特約店一覧, viewed 2026-10-14). Scene photographs are AI-generated (Gemini); the bottle is a 3D reconstruction rendered in Blender.</div>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const mobile=matchMedia('(max-width:760px)').matches;
+const progLis=[...document.querySelectorAll('#prog li')];
+const scenes=['#field','#sixtyfive','#hanegi','#bottle','#teiban','#where'];
+scenes.forEach((s,i)=>ScrollTrigger.create({trigger:s,start:'top center',end:'bottom center',onToggle:self=>{if(self.isActive)progLis.forEach((li,j)=>li.classList.toggle('on',j===i))}}));
+
+/* 01 field: slow push, season grade, lines */
+{
+  const tl=gsap.timeline({scrollTrigger:{trigger:'#field',start:'top top',end:'+=260%',pin:true,scrub:1}});
+  const bg='#field .bg', seasons=gsap.utils.toArray('#field .season span');
+  tl.set('#field .title',{opacity:1})
+    .fromTo(bg,{scale:1.12,yPercent:0},{scale:1,yPercent:-3,ease:'none',duration:10},0)
+    .fromTo('#field .lede',{opacity:0,y:16},{opacity:1,y:0,duration:1},.5)
+    .to('#field .title',{opacity:0,y:-20,duration:1},2.2)
+    .to('#field .lede',{opacity:0,duration:1},2.2)
+    // the three seasons from the brewery's own description, shot from the same spot (AI-generated, matched framing)
+    .to(seasons[0],{opacity:1,duration:.8},3).to(seasons[0],{opacity:0,duration:.6},4.6)
+    .to('#summer',{opacity:1,duration:1.6},4.4)
+    .to(seasons[1],{opacity:1,duration:.8},5).to(seasons[1],{opacity:0,duration:.6},6.6)
+    .to('#autumn',{opacity:1,duration:1.6},6.4)
+    .to(seasons[2],{opacity:1,duration:.8},7).to(seasons[2],{opacity:0,duration:.6},9.2);
+}
+
+/* 02 sixty-five: number 100 -> 65, the ring shrinks by the cube root (65% of the weight, not of the diameter) */
+{
+  const st={v:100}, num=document.getElementById('num'), keep=document.getElementById('keep'), cut=document.getElementById('cut'), core=document.getElementById('core');
+  const tl=gsap.timeline({scrollTrigger:{trigger:'#sixtyfive',start:'top top',end:'+=300%',pin:true,scrub:1}});
+  tl.fromTo('#sixtyfive .bg',{scale:1.15},{scale:1.02,ease:'none',duration:10},0)
+    .fromTo('#sixtyfive .copy',{opacity:0,y:16},{opacity:1,y:0,duration:1},.4)
+    .to(st,{v:65,ease:'power1.inOut',duration:6,onUpdate(){const v=Math.round(st.v);num.textContent=v;keep.textContent=v+'%';cut.textContent=(100-v)+'%';
+        core.setAttribute('r',(96*Math.cbrt(st.v/100)).toFixed(2))}},1.5)
+    .to({}, {duration:2});
+}
+
+/* 03 hanegi: push in, lines, drops, fade to black */
+const dropsCv=document.getElementById('drops'),dc=dropsCv.getContext('2d');
+const drop={p:0,on:0};
+function sizeDrops(){dropsCv.width=innerWidth*devicePixelRatio;dropsCv.height=innerHeight*devicePixelRatio}
+sizeDrops();addEventListener('resize',sizeDrops);
+function drawDrops(t){
+  const W=dropsCv.width,H=dropsCv.height;dc.clearRect(0,0,W,H);
+  if(drop.on<=0)return;
+  // the pressing box sits at the lower left of the photograph
+  const x0=W*(mobile?.30:.36),y0=H*.84,y1=H*1.02,n=3;
+  for(let i=0;i<n;i++){
+    const f=((t*.00045)+i/n)%1, y=y0+(y1-y0)*f*f, a=drop.on*(1-f)*.9;
+    const g=dc.createRadialGradient(x0+i*W*.025,y,0,x0+i*W*.025,y,10*devicePixelRatio);
+    g.addColorStop(0,`rgba(255,236,200,${a})`);g.addColorStop(1,'rgba(255,236,200,0)');
+    dc.fillStyle=g;dc.beginPath();dc.ellipse(x0+i*W*.025,y,3*devicePixelRatio,5*devicePixelRatio,0,0,Math.PI*2);dc.fill();
+  }
+}
+{
+  const lines=gsap.utils.toArray('#hanegi .copy .line');
+  const tl=gsap.timeline({scrollTrigger:{trigger:'#hanegi',start:'top top',end:'+=320%',pin:true,scrub:1}});
+  tl.fromTo('#hanegi .bg',{scale:1.0},{scale:1.1,ease:'none',duration:10},0);
+  lines.forEach((l,i)=>tl.fromTo(l,{opacity:0,y:-14},{opacity:1,y:0,duration:.8},.6+i*1.1));
+  tl.to(drop,{on:1,duration:1},5.2)
+    .fromTo('#hanegi .pota',{opacity:0},{opacity:1,duration:.8},5.6)
+    .to(lines,{opacity:0,duration:.8},7.2)
+    .to('#hanegi .black',{opacity:1,duration:1.6},8.2)
+    .to(drop,{on:0,duration:1},8.6);
+}
+
+/* 04 bottle: rendered frame sequence scrubbed by scroll */
+const seq=document.getElementById('seq'),sc=seq.getContext('2d');
+const N=90, frames=[], dir=mobile?'web/seq_dark/m/':'web/seq_dark/';
+let ready=false, cur=-1;
+const still=new Image();still.src='render/bottle_dark_wide.png';
+for(let i=1;i<=N;i++){const im=new Image();im.decoding='async';im.src=dir+String(i).padStart(4,'0')+'.webp';frames.push(im)}
+function sizeSeq(){seq.width=innerWidth*devicePixelRatio;seq.height=innerHeight*devicePixelRatio;cur=-1;drawSeq(lastP)}
+function cover(im){const W=seq.width,H=seq.height,iw=im.naturalWidth,ih=im.naturalHeight;
+  if(!mobile){const r=Math.max(W/iw,H/ih),w=iw*r,h=ih*r;sc.drawImage(im,(W-w)/2,(H-h)/2,w,h);return}
+  // phones: the bottle (about 85% of the frame height, centred at x≈63%) sits in the upper half, copy below
+  const r=H*.5/(ih*.85),w=iw*r,h=ih*r,x=W/2-w*.63,y=H*.07-h*.06;
+  sc.drawImage(im,x,y,w,h);
+  const fade=(y0,y1,a0,a1)=>{const g=sc.createLinearGradient(0,y0,0,y1);g.addColorStop(0,`rgba(0,0,0,${a0})`);g.addColorStop(1,`rgba(0,0,0,${a1})`);sc.fillStyle=g;sc.fillRect(0,Math.min(y0,y1),W,Math.abs(y1-y0))};
+  fade(y,y+h*.18,1,0);fade(y+h*.72,y+h,0,1)}
+let lastP=0;
+function drawSeq(p){lastP=p;const i=Math.min(N-1,Math.round(p*(N-1)));
+  const im=frames[i]&&frames[i].complete&&frames[i].naturalWidth?frames[i]:(still.complete&&still.naturalWidth?still:null);
+  if(!im||i===cur&&im!==still)return;cur=i;sc.fillStyle='#000';sc.fillRect(0,0,seq.width,seq.height);cover(im)}
+addEventListener('resize',sizeSeq);sizeSeq();
+still.onload=()=>drawSeq(lastP);frames[0].onload=()=>drawSeq(lastP);
+{
+  const tl=gsap.timeline({scrollTrigger:{trigger:'#bottle',start:'top top',end:'+=320%',pin:true,scrub:.6,onUpdate:s=>drawSeq(s.progress)}});
+  tl.fromTo('#bottle .copy',{opacity:0,y:20},{opacity:1,y:0,duration:1},2.5).to({}, {duration:5});
+}
+
+/* 05 teiban: words light up in reading order */
+{
+  const spans=gsap.utils.toArray('#teiban .phrase span');
+  const tl=gsap.timeline({scrollTrigger:{trigger:'#teiban',start:'top top',end:'+=200%',pin:true,scrub:1}});
+  spans.forEach((s,i)=>tl.to(s,{opacity:1,duration:1},i*1.1));
+  tl.fromTo('#teiban .note',{opacity:0},{opacity:1,duration:1},3.4);
+}
+
+function loop(t){drawDrops(t);requestAnimationFrame(loop)}
+if(!reduce)requestAnimationFrame(loop);
+document.fonts.ready.then(()=>ScrollTrigger.refresh());
+</script>
+</body>
+</html>
