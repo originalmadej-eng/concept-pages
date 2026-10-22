@@ -317,8 +317,23 @@ html[lang="ja"] .cn-h { word-break: normal; }
 .live .bars i { animation: grow 5s var(--ease) infinite both; animation-delay: calc(var(--k) * 90ms); }
 
 /* motion graphic: kinetic shapes + a timeline with a running playhead */
-.t-mo { grid-column: 1; grid-row: 1 / -1; background: #111114; }
-.mo-cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.t-mo { grid-column: 1; grid-row: 1 / -1; background: #0B0B0D; }
+.mo-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; }
+.mo-open { position: absolute; inset: 0; z-index: 4; display: flex; align-items: flex-start; justify-content: flex-end; padding: 8px; border: 0; background: transparent; cursor: pointer; border-radius: 12px; }
+.mo-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 99px; background: rgba(11, 11, 13, .8); color: #fff; font: 600 11px/1.2 var(--f-body); white-space: nowrap; transition: background-color 160ms var(--ease), transform 160ms var(--ease); }
+.mo-pill svg { width: 12px; height: 12px; flex: none; }
+.mo-open:hover .mo-pill { background: var(--amber); transform: translateY(-1px); }
+.mo-open:focus-visible { outline: 2px solid var(--cyan); outline-offset: -2px; }
+.lb { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center;
+  padding-top: max(16px, env(safe-area-inset-top, 0px)); padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.lb-back { position: absolute; inset: 0; background: rgba(5, 5, 6, .88); }
+.lb-box { position: relative; height: min(86vh, calc((100vw - 48px) * 1.25)); aspect-ratio: 4 / 5; max-width: 100%; animation: lbIn 320ms var(--ease) both; }
+.lb-box video { width: 100%; height: 100%; display: block; border-radius: 16px; background: #000; box-shadow: 0 0 0 1px rgba(255, 255, 255, .1), 0 40px 80px -20px rgba(0, 0, 0, .9); }
+.lb-close { position: absolute; top: -14px; right: -14px; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; border: 1px solid rgba(255, 255, 255, .2); background: #18181B; color: #fff; cursor: pointer; transition: background-color 160ms var(--ease); }
+.lb-close svg { width: 18px; height: 18px; }
+.lb-close:hover { background: var(--amber); }
+@keyframes lbIn { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
 .t-mo .tl { top: auto; bottom: 8px; }
 .mo { position: absolute; inset: 0; container-type: size; }
 .mo-ring { position: absolute; left: 50%; top: 44%; width: 46cqh; aspect-ratio: 1; margin: -23cqh 0 0 -23cqh; border-radius: 50%; border: 2px solid var(--cyan); box-shadow: 0 0 18px rgba(0, 229, 255, .4); }
@@ -621,8 +636,9 @@ html.static .under { display: none; }
               <p class="f-desc" data-t="d2">Card news, infographics and motion graphics, generated automatically in your brand style.</p>
               <div class="viz design">
                 <div class="tile t-mo">
-                  <canvas class="mo-cv" id="moCv" aria-hidden="true"></canvas>
-                  <span class="tl" data-t="tMotion">Motion graphic</span>
+                  <video class="mo-vid" id="moVid" muted loop playsinline preload="metadata" poster="showreel_poster.jpg" aria-hidden="true"><source src="showreel.mp4" type="video/mp4"><source src="showreel.webm" type="video/webm"></video>
+                  <button class="mo-open" type="button" id="moOpen"><span class="mo-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></svg><span data-t="watch">Watch with sound</span></span></button>
+                  <span class="tl" data-t="tMotion">Motion graphic · 15s</span>
                 </div>
                 <div class="tile t-cn">
                   <div class="cn-stack">
@@ -732,10 +748,17 @@ html.static .under { display: none; }
   </section>
 </main>
 <footer class="foot" data-t="foot">© 2026 Woncho Chung</footer>
+<div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="Showreel">
+  <div class="lb-back" id="lbBack"></div>
+  <div class="lb-box">
+    <video id="lbVid" controls playsinline preload="none" poster="showreel_poster.jpg"><source src="showreel.mp4" type="video/mp4"><source src="showreel.webm" type="video/webm"></video>
+    <button class="lb-close" type="button" id="lbClose" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  </div>
+</div>
 
 <script>
 (function () {
-  var I18N = {"en": {"role": "AI Automation Architect", "intro": "From AI automation to web design, I design, build and run systems that make your work easier and faster.", "tag": "ID WC-0221 // JP", "scroll": "Scroll to flip", "c1": "Content pipelines", "c2": "Design automation", "c3": "Agent workflows", "c4": "Web design", "cap0": "Card", "cap5": "Contact", "k1": "Service 01", "t1": "AI content automation pipeline", "d1": "I automate content production, from research to posting on Instagram and Threads.", "p1": "Collect", "p2": "Select", "p3": "Write", "p4": "Visuals", "p5": "Review", "p6": "Post", "sample": "sample run", "log": [["08:00", "Collecting industry news"], ["08:02", "Topic: visa renewal fee change"], ["08:04", "Instagram carousel copy, 8 slides ✓"], ["08:05", "Threads post draft ✓"], ["08:07", "Card images 1080×1350 rendered ✓"], ["08:08", "Waiting for review → scheduled on approval"]], "s1v1": "2", "s1l1": "channels: Instagram, Threads", "s1v2": "Daily", "s1l2": "research", "s1v3": "Reviewed", "s1l3": "before posting", "k2": "Service 02 · Marketing", "t2": "Image & design automation", "d2": "Card news, infographics and motion graphics, generated automatically in your brand style.", "tNews": "Card news 1080×1350", "tInfo": "Infographic", "mockTitle": "5 things to check before renewing your visa", "s2v1": "282", "s2l1": "curated stock photos", "s2v2": "Auto", "s2l2": "brand rule check", "s2v3": "KO·EN", "s2l3": "version per language", "k3": "Service 03", "t3": "AI agent workflows", "d3": "I design agents that split multi-step work and run it on schedule.", "hub": "Coordinator", "a1": "Scheduler", "a2": "Research", "a3": "Writer", "a4": "Reviewer", "a5": "Publisher", "a6": "Designer", "s3v1": "Daily", "s3l1": "scheduled runs", "s3v2": "Custom", "s3l2": "steps and checkpoints", "s3v3": "Logged", "s3l3": "every step recorded", "k4": "Service 04", "t4": "Web design", "d4": "Websites, landing pages and interactive tools, designed and built for your brand.", "s4v1": "30+", "s4l1": "live calculators", "s4v2": "KO·EN", "s4l2": "bilingual site in operation", "s4v3": "3D", "s4l3": "interactive scenes", "k5": "Contact", "t5": "Project inquiries", "d5": "If you want your work to run more smoothly, get in touch. I'll listen to what you need, then design and build the systems and web pages for you.", "copy": "Copy number", "copied": "Copied", "selected": "Selected", "call": "Call", "qrCap": "Scan to save contact", "case": "Example project: thefinexpat.com", "foot": "© 2026 Woncho Chung", "tMotion": "Motion graphic", "cn2": "Check the new fee", "cn3": "Prepare your documents", "cnTag": "Guide", "infoTitle": "Engagement · sample", "webCap": "Concept work · shoe store with a 3D card carousel", "webCap2": "Concept work · medicube Booster Pro X2 3D film, \"MC: Bounce Boosting\"", "mail": "Email"}, "ko": {"role": "AI 자동화 아키텍트", "intro": "AI 자동화부터 웹 디자인까지, 업무를 더 쉽고 빠르게 만드는 시스템을 직접 설계·제작하고 운영까지 맡습니다.", "tag": "ID WC-0221 // JP", "scroll": "스크롤하면 넘어갑니다", "c1": "콘텐츠 자동화", "c2": "디자인 자동화", "c3": "에이전트 워크플로우", "c4": "웹 디자인", "cap0": "명함", "cap5": "연락처", "k1": "Service 01", "t1": "AI 콘텐츠 자동화 파이프라인", "d1": "자료 수집부터 인스타그램·스레드 게시까지, 콘텐츠 제작 과정을 자동화해 드립니다.", "p1": "수집", "p2": "선별", "p3": "글 작성", "p4": "이미지", "p5": "검토", "p6": "게시", "sample": "실행 예시", "log": [["08:00", "업계 뉴스·자료 수집"], ["08:02", "주제 선정: 비자 갱신 수수료 변경"], ["08:04", "Instagram 캐러셀 문구 8장 ✓"], ["08:05", "Threads 게시글 초안 ✓"], ["08:07", "카드 이미지 1080×1350 생성 ✓"], ["08:08", "담당자 검토 대기 → 승인 시 예약 게시"]], "s1v1": "2", "s1l1": "채널: 인스타그램·스레드", "s1v2": "매일", "s1l2": "자료 확인", "s1v3": "검토 후", "s1l3": "게시", "k2": "Service 02 · Marketing", "t2": "이미지·디자인 자동화", "d2": "카드뉴스·인포그래픽·모션 그래픽을 브랜드에 맞춰 자동으로 만들어 드립니다.", "tNews": "카드뉴스 1080×1350", "tInfo": "인포그래픽", "mockTitle": "비자 갱신 전 꼭 확인할 5가지", "s2v1": "282", "s2l1": "장의 검수된 사진 라이브러리", "s2v2": "자동", "s2l2": "브랜드 규정 검사", "s2v3": "KO·EN", "s2l3": "언어별 버전", "k3": "Service 03", "t3": "AI 에이전트 워크플로우", "d3": "여러 단계로 이어지는 업무를 에이전트가 나눠 처리하도록 설계해 드립니다.", "hub": "총괄", "a1": "스케줄러", "a2": "리서치", "a3": "작성", "a4": "담당자", "a5": "발행", "a6": "디자인", "s3v1": "매일", "s3l1": "정해진 시간 자동 실행", "s3v2": "맞춤", "s3l2": "단계·확인 과정 설계", "s3v3": "기록", "s3l3": "모든 단계 작업 로그", "k4": "Service 04", "t4": "웹 디자인", "d4": "웹사이트, 랜딩페이지, 인터랙티브 도구를 브랜드에 맞춰 디자인하고 제작합니다.", "s4v1": "30+", "s4l1": "운영 중인 계산기", "s4v2": "KO·EN", "s4l2": "2개 언어 사이트 운영", "s4v3": "3D", "s4l3": "인터랙티브 연출", "k5": "Contact", "t5": "프로젝트 문의", "d5": "업무를 더 쉽게 처리하고 싶으시다면 편하게 문의해 주세요. 상황을 듣고 필요한 시스템과 웹페이지를 직접 설계·제작해 드립니다.", "copy": "번호 복사", "copied": "복사됨", "selected": "선택됨", "call": "전화", "qrCap": "스캔해서 연락처 저장", "case": "운영 사례: thefinexpat.com", "foot": "© 2026 Woncho Chung", "tMotion": "모션 그래픽", "cn2": "새 수수료 확인", "cn3": "필요 서류 준비", "cnTag": "가이드", "infoTitle": "게시물 반응 · 샘플", "webCap": "컨셉 작업 · 신발 스토어 3D 카드 캐러셀", "webCap2": "컨셉 작업 · 메디큐브 부스터 프로 X2 3D 영상 「MC: Bounce Boosting」", "mail": "이메일"}, "ja": {"role": "AI自動化アーキテクト", "intro": "AI自動化からWebデザインまで、業務をもっと簡単に、速くする仕組みを設計・制作し、運用までお引き受けします。", "tag": "ID WC-0221 // JP", "scroll": "スクロールでめくる", "c1": "コンテンツ自動化", "c2": "デザイン自動化", "c3": "エージェント設計", "c4": "Webデザイン", "cap0": "名刺", "cap5": "連絡先", "k1": "Service 01", "t1": "AIコンテンツ自動化パイプライン", "d1": "情報収集からInstagram・Threadsへの投稿まで、コンテンツ制作を自動化します。", "p1": "収集", "p2": "選定", "p3": "執筆", "p4": "画像", "p5": "確認", "p6": "投稿", "sample": "実行例", "log": [["08:00", "業界ニュース・資料を収集"], ["08:02", "テーマ: 在留更新手数料の改定"], ["08:04", "Instagramカルーセル原稿 8枚 ✓"], ["08:05", "Threads投稿の下書き ✓"], ["08:07", "カード画像 1080×1350 生成 ✓"], ["08:08", "担当者の確認待ち → 承認後に予約投稿"]], "s1v1": "2", "s1l1": "Instagram・Threads", "s1v2": "毎日", "s1l2": "情報収集", "s1v3": "確認後", "s1l3": "に投稿", "k2": "Service 02 · Marketing", "t2": "画像・デザイン自動化", "d2": "カードニュース・インフォグラフィック・モーショングラフィックをブランドに合わせて自動生成します。", "tNews": "カードニュース 1080×1350", "tInfo": "インフォグラフィック", "mockTitle": "ビザ更新前に確認したい5つのこと", "s2v1": "282", "s2l1": "枚の検品済み写真ライブラリ", "s2v2": "自動", "s2l2": "ブランド規定チェック", "s2v3": "KO·EN", "s2l3": "言語別バージョン", "k3": "Service 03", "t3": "AIエージェント・ワークフロー", "d3": "複数の工程にわたる業務を、エージェントが分担して処理する仕組みを設計します。", "hub": "統括", "a1": "スケジューラ", "a2": "リサーチ", "a3": "執筆", "a4": "担当者", "a5": "公開", "a6": "デザイン", "s3v1": "毎日", "s3l1": "定時に自動実行", "s3v2": "個別設計", "s3l2": "工程と確認ポイント", "s3v3": "記録", "s3l3": "全工程のログ", "k4": "Service 04", "t4": "Webデザイン", "d4": "Webサイト、ランディングページ、インタラクティブなツールをブランドに合わせて制作します。", "s4v1": "30+", "s4l1": "稼働中の計算機", "s4v2": "KO·EN", "s4l2": "2言語サイトを運用", "s4v3": "3D", "s4l3": "インタラクティブ演出", "k5": "Contact", "t5": "お問い合わせ", "d5": "業務をもっとスムーズに進めたいとお考えでしたら、お気軽にご相談ください。お話を伺い、必要な仕組みやWebページを設計・制作いたします。", "copy": "番号をコピー", "copied": "コピー済み", "selected": "選択済み", "call": "電話", "qrCap": "スキャンして連絡先を保存", "case": "運用事例: thefinexpat.com", "foot": "© 2026 Woncho Chung", "tMotion": "モーショングラフィック", "cn2": "新しい手数料を確認", "cn3": "必要書類を準備", "cnTag": "ガイド", "infoTitle": "投稿の反応 · サンプル", "webCap": "コンセプト作品 · 3Dカードカルーセルのシューズストア", "webCap2": "コンセプト作品 · medicube Booster Pro X2 3D映像「MC: Bounce Boosting」", "mail": "メール"}};
+  var I18N = {"en": {"role": "AI Automation Architect", "intro": "From AI automation to web design, I design, build and run systems that make your work easier and faster.", "tag": "ID WC-0221 // JP", "scroll": "Scroll to flip", "c1": "Content pipelines", "c2": "Design automation", "c3": "Agent workflows", "c4": "Web design", "cap0": "Card", "cap5": "Contact", "k1": "Service 01", "t1": "AI content automation pipeline", "d1": "I automate content production, from research to posting on Instagram and Threads.", "p1": "Collect", "p2": "Select", "p3": "Write", "p4": "Visuals", "p5": "Review", "p6": "Post", "sample": "sample run", "log": [["08:00", "Collecting industry news"], ["08:02", "Topic: visa renewal fee change"], ["08:04", "Instagram carousel copy, 8 slides ✓"], ["08:05", "Threads post draft ✓"], ["08:07", "Card images 1080×1350 rendered ✓"], ["08:08", "Waiting for review → scheduled on approval"]], "s1v1": "2", "s1l1": "channels: Instagram, Threads", "s1v2": "Daily", "s1l2": "research", "s1v3": "Reviewed", "s1l3": "before posting", "k2": "Service 02 · Marketing", "t2": "Image & design automation", "d2": "Card news, infographics and motion graphics, generated automatically in your brand style.", "tNews": "Card news 1080×1350", "tInfo": "Infographic", "mockTitle": "5 things to check before renewing your visa", "s2v1": "282", "s2l1": "curated stock photos", "s2v2": "Auto", "s2l2": "brand rule check", "s2v3": "KO·EN", "s2l3": "version per language", "k3": "Service 03", "t3": "AI agent workflows", "d3": "I design agents that split multi-step work and run it on schedule.", "hub": "Coordinator", "a1": "Scheduler", "a2": "Research", "a3": "Writer", "a4": "Reviewer", "a5": "Publisher", "a6": "Designer", "s3v1": "Daily", "s3l1": "scheduled runs", "s3v2": "Custom", "s3l2": "steps and checkpoints", "s3v3": "Logged", "s3l3": "every step recorded", "k4": "Service 04", "t4": "Web design", "d4": "Websites, landing pages and interactive tools, designed and built for your brand.", "s4v1": "30+", "s4l1": "live calculators", "s4v2": "KO·EN", "s4l2": "bilingual site in operation", "s4v3": "3D", "s4l3": "interactive scenes", "k5": "Contact", "t5": "Project inquiries", "d5": "If you want your work to run more smoothly, get in touch. I'll listen to what you need, then design and build the systems and web pages for you.", "copy": "Copy number", "copied": "Copied", "selected": "Selected", "call": "Call", "qrCap": "Scan to save contact", "case": "Example project: thefinexpat.com", "foot": "© 2026 Woncho Chung", "tMotion": "Motion graphic · 15s", "cn2": "Check the new fee", "cn3": "Prepare your documents", "cnTag": "Guide", "infoTitle": "Engagement · sample", "webCap": "Concept work · shoe store with a 3D card carousel", "webCap2": "Concept work · medicube Booster Pro X2 3D film, \"MC: Bounce Boosting\"", "mail": "Email", "watch": "Watch with sound"}, "ko": {"role": "AI 자동화 아키텍트", "intro": "AI 자동화부터 웹 디자인까지, 업무를 더 쉽고 빠르게 만드는 시스템을 직접 설계·제작하고 운영까지 맡습니다.", "tag": "ID WC-0221 // JP", "scroll": "스크롤하면 넘어갑니다", "c1": "콘텐츠 자동화", "c2": "디자인 자동화", "c3": "에이전트 워크플로우", "c4": "웹 디자인", "cap0": "명함", "cap5": "연락처", "k1": "Service 01", "t1": "AI 콘텐츠 자동화 파이프라인", "d1": "자료 수집부터 인스타그램·스레드 게시까지, 콘텐츠 제작 과정을 자동화해 드립니다.", "p1": "수집", "p2": "선별", "p3": "글 작성", "p4": "이미지", "p5": "검토", "p6": "게시", "sample": "실행 예시", "log": [["08:00", "업계 뉴스·자료 수집"], ["08:02", "주제 선정: 비자 갱신 수수료 변경"], ["08:04", "Instagram 캐러셀 문구 8장 ✓"], ["08:05", "Threads 게시글 초안 ✓"], ["08:07", "카드 이미지 1080×1350 생성 ✓"], ["08:08", "담당자 검토 대기 → 승인 시 예약 게시"]], "s1v1": "2", "s1l1": "채널: 인스타그램·스레드", "s1v2": "매일", "s1l2": "자료 확인", "s1v3": "검토 후", "s1l3": "게시", "k2": "Service 02 · Marketing", "t2": "이미지·디자인 자동화", "d2": "카드뉴스·인포그래픽·모션 그래픽을 브랜드에 맞춰 자동으로 만들어 드립니다.", "tNews": "카드뉴스 1080×1350", "tInfo": "인포그래픽", "mockTitle": "비자 갱신 전 꼭 확인할 5가지", "s2v1": "282", "s2l1": "장의 검수된 사진 라이브러리", "s2v2": "자동", "s2l2": "브랜드 규정 검사", "s2v3": "KO·EN", "s2l3": "언어별 버전", "k3": "Service 03", "t3": "AI 에이전트 워크플로우", "d3": "여러 단계로 이어지는 업무를 에이전트가 나눠 처리하도록 설계해 드립니다.", "hub": "총괄", "a1": "스케줄러", "a2": "리서치", "a3": "작성", "a4": "담당자", "a5": "발행", "a6": "디자인", "s3v1": "매일", "s3l1": "정해진 시간 자동 실행", "s3v2": "맞춤", "s3l2": "단계·확인 과정 설계", "s3v3": "기록", "s3l3": "모든 단계 작업 로그", "k4": "Service 04", "t4": "웹 디자인", "d4": "웹사이트, 랜딩페이지, 인터랙티브 도구를 브랜드에 맞춰 디자인하고 제작합니다.", "s4v1": "30+", "s4l1": "운영 중인 계산기", "s4v2": "KO·EN", "s4l2": "2개 언어 사이트 운영", "s4v3": "3D", "s4l3": "인터랙티브 연출", "k5": "Contact", "t5": "프로젝트 문의", "d5": "업무를 더 쉽게 처리하고 싶으시다면 편하게 문의해 주세요. 상황을 듣고 필요한 시스템과 웹페이지를 직접 설계·제작해 드립니다.", "copy": "번호 복사", "copied": "복사됨", "selected": "선택됨", "call": "전화", "qrCap": "스캔해서 연락처 저장", "case": "운영 사례: thefinexpat.com", "foot": "© 2026 Woncho Chung", "tMotion": "모션 그래픽 · 15초", "cn2": "새 수수료 확인", "cn3": "필요 서류 준비", "cnTag": "가이드", "infoTitle": "게시물 반응 · 샘플", "webCap": "컨셉 작업 · 신발 스토어 3D 카드 캐러셀", "webCap2": "컨셉 작업 · 메디큐브 부스터 프로 X2 3D 영상 「MC: Bounce Boosting」", "mail": "이메일", "watch": "소리와 함께 보기"}, "ja": {"role": "AI自動化アーキテクト", "intro": "AI自動化からWebデザインまで、業務をもっと簡単に、速くする仕組みを設計・制作し、運用までお引き受けします。", "tag": "ID WC-0221 // JP", "scroll": "スクロールでめくる", "c1": "コンテンツ自動化", "c2": "デザイン自動化", "c3": "エージェント設計", "c4": "Webデザイン", "cap0": "名刺", "cap5": "連絡先", "k1": "Service 01", "t1": "AIコンテンツ自動化パイプライン", "d1": "情報収集からInstagram・Threadsへの投稿まで、コンテンツ制作を自動化します。", "p1": "収集", "p2": "選定", "p3": "執筆", "p4": "画像", "p5": "確認", "p6": "投稿", "sample": "実行例", "log": [["08:00", "業界ニュース・資料を収集"], ["08:02", "テーマ: 在留更新手数料の改定"], ["08:04", "Instagramカルーセル原稿 8枚 ✓"], ["08:05", "Threads投稿の下書き ✓"], ["08:07", "カード画像 1080×1350 生成 ✓"], ["08:08", "担当者の確認待ち → 承認後に予約投稿"]], "s1v1": "2", "s1l1": "Instagram・Threads", "s1v2": "毎日", "s1l2": "情報収集", "s1v3": "確認後", "s1l3": "に投稿", "k2": "Service 02 · Marketing", "t2": "画像・デザイン自動化", "d2": "カードニュース・インフォグラフィック・モーショングラフィックをブランドに合わせて自動生成します。", "tNews": "カードニュース 1080×1350", "tInfo": "インフォグラフィック", "mockTitle": "ビザ更新前に確認したい5つのこと", "s2v1": "282", "s2l1": "枚の検品済み写真ライブラリ", "s2v2": "自動", "s2l2": "ブランド規定チェック", "s2v3": "KO·EN", "s2l3": "言語別バージョン", "k3": "Service 03", "t3": "AIエージェント・ワークフロー", "d3": "複数の工程にわたる業務を、エージェントが分担して処理する仕組みを設計します。", "hub": "統括", "a1": "スケジューラ", "a2": "リサーチ", "a3": "執筆", "a4": "担当者", "a5": "公開", "a6": "デザイン", "s3v1": "毎日", "s3l1": "定時に自動実行", "s3v2": "個別設計", "s3l2": "工程と確認ポイント", "s3v3": "記録", "s3l3": "全工程のログ", "k4": "Service 04", "t4": "Webデザイン", "d4": "Webサイト、ランディングページ、インタラクティブなツールをブランドに合わせて制作します。", "s4v1": "30+", "s4l1": "稼働中の計算機", "s4v2": "KO·EN", "s4l2": "2言語サイトを運用", "s4v3": "3D", "s4l3": "インタラクティブ演出", "k5": "Contact", "t5": "お問い合わせ", "d5": "業務をもっとスムーズに進めたいとお考えでしたら、お気軽にご相談ください。お話を伺い、必要な仕組みやWebページを設計・制作いたします。", "copy": "番号をコピー", "copied": "コピー済み", "selected": "選択済み", "call": "電話", "qrCap": "スキャンして連絡先を保存", "case": "運用事例: thefinexpat.com", "foot": "© 2026 Woncho Chung", "tMotion": "モーショングラフィック · 15秒", "cn2": "新しい手数料を確認", "cn3": "必要書類を準備", "cnTag": "ガイド", "infoTitle": "投稿の反応 · サンプル", "webCap": "コンセプト作品 · 3Dカードカルーセルのシューズストア", "webCap2": "コンセプト作品 · medicube Booster Pro X2 3D映像「MC: Bounce Boosting」", "mail": "メール", "watch": "音声付きで見る"}};
   var N = 6;
   var root = document.documentElement;
   var faces = Array.prototype.slice.call(document.querySelectorAll(".face"));
@@ -838,195 +861,28 @@ html.static .under { display: none; }
     return row;
   }
 
-  /* ---------- 4-second Instagram-style motion graphic (canvas) ----------
-     0.00 dots bounce in   0.35 words pop letter by letter   1.05 magenta circle wipe
-     1.35 big line slides up, icons orbit   2.40 yellow stripe wipe   2.70 tags pop, check badge, confetti
-     3.50 ink circle closes, loops */
+  /* ---------- showreel: muted loop in the tile, full size with sound on tap ---------- */
   var reel = (function () {
-    var cv = document.getElementById("moCv");
-    if (!cv) return { on: function () {}, off: function () {} };
-    var cx = cv.getContext("2d"), W = 0, H = 0, run = false, t0 = 0, raf = 0;
-    var LOOP = 4, INK = "#111114", PAPER = "#F7F7F5", CYAN = "#00E5FF", MAG = "#FF2E97", YEL = "#FFE14D";
-    var COPY = {
-      en: { a: "Make", b: "content", c: ["on", "autopilot"], tags: ["Card news", "Reels", "Threads"], done: "Posted" },
-      ko: { a: "콘텐츠를", b: "자동으로", c: ["만들고", "올리고"], tags: ["카드뉴스", "릴스", "스레드"], done: "게시 완료" },
-      ja: { a: "コンテンツを", b: "自動で", c: ["つくって", "届ける"], tags: ["カードニュース", "リール", "Threads"], done: "投稿完了" }
-    };
-    function cl(x) { return x < 0 ? 0 : x > 1 ? 1 : x; }
-    function seg(t, a, b) { return cl((t - a) / (b - a)); }
-    function back(x) { var c1 = 1.9, c3 = c1 + 1; return x <= 0 ? 0 : x >= 1 ? 1 : 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); }
-    function eo(x) { return 1 - Math.pow(1 - x, 3); }
-    function eio(x) { return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
-    function font(px, w) { return (w || 800) + " " + px + "px 'Hanken Grotesk', 'IBM Plex Sans KR', 'Zen Kaku Gothic New', sans-serif"; }
-    function fit(strs, px, maxW, w) {   // shrink the type until the longest line fits the frame
-      cx.font = font(px, w);
-      var widest = Math.max.apply(null, strs.map(function (q) { return cx.measureText(q).width; }));
-      return widest > maxW ? px * maxW / widest : px;
+    var v = document.getElementById("moVid");
+    function play(el) { if (!el) return; try { var pr = el.play(); if (pr && pr.catch) pr.catch(function () {}); } catch (e) {} }
+    function stop(el) { if (!el) return; try { el.pause(); } catch (e) {} }
+    return { on: function () { if (!reduce) play(v); }, off: function () { stop(v); }, play: play, stop: stop, tile: v };
+  })();
+  (function () {
+    var lb = document.getElementById("lb"), lv = document.getElementById("lbVid"), openBtn = document.getElementById("moOpen"), closeBtn = document.getElementById("lbClose");
+    if (!lb || !openBtn) return;
+    function open() {
+      lb.hidden = false; document.body.style.overflow = "hidden"; reel.off();
+      try { lv.currentTime = 0; } catch (e) {} lv.muted = false; reel.play(lv); closeBtn.focus();
     }
-    function size() {
-      var w = cv.clientWidth, h = cv.clientHeight;   // layout size: unaffected by the card's 3D turn
-      if (!w || !h) return false;
-      if (w !== W || h !== H) {
-        var dpr = Math.min(window.devicePixelRatio || 1, 2);
-        W = w; H = h; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
-        cx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      }
-      return true;
+    function close() {
+      reel.stop(lv); lb.hidden = true; document.body.style.overflow = ""; openBtn.focus();
+      if (liveIdx === 2) reel.on();
     }
-    function rr(x, y, w, h, r) { cx.beginPath(); cx.moveTo(x + r, y); cx.arcTo(x + w, y, x + w, y + h, r); cx.arcTo(x + w, y + h, x, y + h, r); cx.arcTo(x, y + h, x, y, r); cx.arcTo(x, y, x + w, y, r); cx.closePath(); }
-    // letters pop one by one with an overshoot
-    function popText(str, x, y, px, color, t, start, stagger, align) {
-      cx.font = font(px); cx.textBaseline = "middle";
-      var chars = Array.from(str), widths = chars.map(function (c) { return cx.measureText(c).width; });
-      var total = widths.reduce(function (a, b) { return a + b; }, 0), cxp = align === "center" ? x - total / 2 : x;
-      for (var i = 0; i < chars.length; i++) {
-        var k = back(seg(t, start + i * stagger, start + i * stagger + .22));
-        if (k > 0) {
-          cx.save(); cx.translate(cxp + widths[i] / 2, y + (1 - k) * px * .35); cx.scale(k, k);
-          cx.fillStyle = color; cx.textAlign = "center"; cx.fillText(chars[i], 0, 0); cx.restore();
-        }
-        cxp += widths[i];
-      }
-      return total;
-    }
-    function icon(kind, x, y, s, k, rot, bg, fg) {
-      if (k <= 0) return;
-      cx.save(); cx.translate(x, y); cx.rotate(rot); cx.scale(k, k);
-      cx.fillStyle = bg; rr(-s / 2, -s / 2, s, s, s * .28); cx.fill();
-      cx.strokeStyle = fg; cx.fillStyle = fg; cx.lineWidth = Math.max(1.5, s * .07); cx.lineJoin = "round"; cx.lineCap = "round";
-      var u = s * .22;
-      if (kind === "img") { rr(-u * 1.3, -u, u * 2.6, u * 2, u * .3); cx.stroke(); cx.beginPath(); cx.arc(-u * .45, -u * .25, u * .28, 0, 6.283); cx.fill(); cx.beginPath(); cx.moveTo(-u * 1.1, u * .8); cx.lineTo(-u * .1, -u * .05); cx.lineTo(u * 1.1, u * .8); cx.stroke(); }
-      else if (kind === "heart") { cx.beginPath(); cx.moveTo(0, u * 1.05); cx.bezierCurveTo(-u * 2.1, -u * .2, -u * .9, -u * 1.6, 0, -u * .45); cx.bezierCurveTo(u * .9, -u * 1.6, u * 2.1, -u * .2, 0, u * 1.05); cx.fill(); }
-      else if (kind === "chat") { rr(-u * 1.3, -u * 1.05, u * 2.6, u * 1.8, u * .6); cx.stroke(); cx.beginPath(); cx.moveTo(-u * .5, u * .75); cx.lineTo(-u * .9, u * 1.3); cx.lineTo(u * .1, u * .75); cx.stroke(); }
-      else if (kind === "cal") { rr(-u * 1.2, -u, u * 2.4, u * 2.1, u * .3); cx.stroke(); cx.beginPath(); cx.moveTo(-u * 1.2, -u * .35); cx.lineTo(u * 1.2, -u * .35); cx.stroke(); cx.fillRect(-u * .5, u * .15, u * .45, u * .45); }
-      cx.restore();
-    }
-    function sparkle(x, y, s, k, color) {
-      if (k <= 0) return;
-      cx.save(); cx.translate(x, y); cx.scale(k, k); cx.fillStyle = color; cx.beginPath();
-      cx.moveTo(0, -s); cx.quadraticCurveTo(0, 0, s, 0); cx.quadraticCurveTo(0, 0, 0, s); cx.quadraticCurveTo(0, 0, -s, 0); cx.quadraticCurveTo(0, 0, 0, -s); cx.fill(); cx.restore();
-    }
-    function bars(t) {   // story-style progress bar
-      var n = 3, g = 4, x0 = 10, w = (W - 20 - g * (n - 1)) / n, y = 10;
-      for (var i = 0; i < n; i++) {
-        var f = cl((t / LOOP) * n - i);
-        cx.fillStyle = "rgba(255,255,255,.35)"; rr(x0 + i * (w + g), y, w, 3, 1.5); cx.fill();
-        if (f > 0) { cx.fillStyle = "#fff"; rr(x0 + i * (w + g), y, Math.max(3, w * f), 3, 1.5); cx.fill(); }
-      }
-    }
-    function draw(t) {
-      if (!size()) return;
-      var C = COPY[lang] || COPY.en, m = Math.min(W, H), Cx = W / 2, Cy = H / 2;
-      // ---- base: ink
-      cx.fillStyle = INK; cx.fillRect(0, 0, W, H);
-      // ---- scene 1: dots, then words pop (ink)
-      if (t < 1.4) {
-        var big = fit([C.a, C.b], Math.min(W * .21, H * .1), W * .74);
-        for (var d = 0; d < 3; d++) {
-          var k = back(seg(t, d * .07, d * .07 + .2)), bounce = Math.sin(cl((t - d * .07) / .35) * Math.PI) * m * .05;
-          var lift = eio(seg(t, .3, .45));
-          var dx = Cx + (d - 1) * m * .08, dy = Cy - bounce;
-          dx += (W * .12 + d * m * .045 - dx) * lift; dy += (Cy - big * 1.15 - dy) * lift;
-          cx.fillStyle = [CYAN, MAG, YEL][d]; cx.beginPath(); cx.arc(dx, dy, m * .022 * k * (1 - .35 * lift), 0, 6.283); cx.fill();
-        }
-        popText(C.a, W * .12, Cy - big * .2, big, "#fff", t, .34, .035, "left");
-        var pw = eo(seg(t, .58, .8)), tw;
-        cx.font = font(big); tw = cx.measureText(C.b).width;
-        if (pw > 0) { cx.fillStyle = CYAN; rr(W * .12 - big * .2, Cy + big * .55, (tw + big * .4) * pw, big * 1.15, big * .3); cx.fill(); }
-        popText(C.b, W * .12, Cy + big * 1.13, big, INK, t, .66, .035, "left");
-        // ---- magenta circle wipe from the pill
-        var wk = eio(seg(t, 1.05, 1.38));
-        if (wk > 0) { cx.fillStyle = MAG; cx.beginPath(); cx.arc(W * .12 + tw / 2, Cy + big * 1.13, Math.hypot(W, H) * 1.05 * wk, 0, 6.283); cx.fill(); }
-      }
-      // ---- scene 2: magenta, big line slides up, icons orbit
-      if (t >= 1.38 && t < 2.72) {
-        cx.fillStyle = MAG; cx.fillRect(0, 0, W, H);
-        var px2 = fit(C.c, Math.min(W * .24, H * .12), W * .82);
-        for (var li = 0; li < C.c.length; li++) {
-          var u = eo(seg(t, 1.4 + li * .12, 1.7 + li * .12)), y0 = Cy - px2 * .65 + li * px2 * 1.25;
-          cx.save(); cx.beginPath(); cx.rect(0, y0 - px2 * .7, W, px2 * 1.4); cx.clip();
-          cx.font = font(px2); cx.textAlign = "center"; cx.textBaseline = "middle"; cx.fillStyle = "#fff";
-          cx.fillText(C.c[li], Cx, y0 + (1 - u) * px2 * 1.4); cx.restore();
-        }
-        var kinds = ["img", "heart", "chat", "cal"], R = m * .36;
-        for (var ic = 0; ic < 4; ic++) {
-          var kk = back(seg(t, 1.55 + ic * .08, 1.8 + ic * .08)), ang = -Math.PI * .75 + ic * Math.PI / 2 + (t - 1.4) * .9;
-          var ix = Cx + Math.cos(ang) * R * (W / m) * .9, iy = Cy + Math.sin(ang) * R * 1.05;
-          icon(kinds[ic], ix, iy, m * .17, kk, Math.sin(t * 6 + ic) * .12, ic % 2 ? YEL : "#fff", INK);
-        }
-        for (var sp = 0; sp < 5; sp++) {
-          var st = 1.6 + sp * .13, sk = Math.sin(cl((t - st) / .5) * Math.PI);
-          sparkle(W * (.15 + .17 * sp), H * (.18 + .62 * ((sp * 37) % 10) / 10), m * .03, sk, sp % 2 ? YEL : "#fff");
-        }
-        // trailing dots
-        for (var td = 0; td < 10; td++) {
-          var tp = (t * .9 + td * .1) % 1;
-          cx.fillStyle = "rgba(255,255,255," + (.5 * (1 - tp)).toFixed(2) + ")";
-          cx.beginPath(); cx.arc(W * tp, H * .86 + Math.sin(tp * 12) * 4, 2, 0, 6.283); cx.fill();
-        }
-        // ---- yellow stripe wipe
-        var sw = eio(seg(t, 2.4, 2.72));
-        if (sw > 0) {
-          cx.fillStyle = YEL;
-          for (var b2 = 0; b2 < 5; b2++) { var bw = W / 5, h2 = H * cl(sw * 1.4 - b2 * .1); cx.fillRect(b2 * bw, 0, bw + 1, h2); }
-        }
-      }
-      // ---- scene 3: paper, tags pop, check badge, confetti
-      if (t >= 2.72) {
-        cx.fillStyle = PAPER; cx.fillRect(0, 0, W, H);
-        var tagPx = fit(C.tags, Math.min(W * .09, H * .05), W * .56, 700);
-        for (var tg = 0; tg < C.tags.length; tg++) {
-          var tk = back(seg(t, 2.74 + tg * .1, 2.98 + tg * .1));
-          if (tk <= 0) continue;
-          cx.font = font(tagPx, 700);
-          var w3 = cx.measureText(C.tags[tg]).width + tagPx * 1.6, h3 = tagPx * 2, x3 = Cx + (tg - 1) * W * .06 - w3 / 2, y3 = H * .26 + tg * h3 * 1.25;
-          cx.save(); cx.translate(x3 + w3 / 2, y3 + h3 / 2); cx.rotate((tg - 1) * -.05); cx.scale(tk, tk);
-          cx.fillStyle = [INK, MAG, CYAN][tg]; rr(-w3 / 2, -h3 / 2, w3, h3, h3 / 2); cx.fill();
-          cx.fillStyle = tg === 2 ? INK : "#fff"; cx.textAlign = "center"; cx.textBaseline = "middle"; cx.fillText(C.tags[tg], 0, 1);
-          cx.restore();
-        }
-        var bk = back(seg(t, 3.08, 3.3)), by = H * .74, br = m * .1;
-        if (bk > 0) {
-          cx.save(); cx.translate(Cx, by); cx.scale(bk, bk);
-          cx.fillStyle = INK; cx.beginPath(); cx.arc(0, 0, br, 0, 6.283); cx.fill();
-          var ck = eo(seg(t, 3.18, 3.36));
-          cx.strokeStyle = CYAN; cx.lineWidth = br * .2; cx.lineCap = "round"; cx.lineJoin = "round"; cx.beginPath();
-          var p1 = [-br * .42, 0], p2 = [-br * .1, br * .32], p3 = [br * .45, -br * .3];
-          cx.moveTo(p1[0], p1[1]);
-          if (ck < .4) cx.lineTo(p1[0] + (p2[0] - p1[0]) * ck / .4, p1[1] + (p2[1] - p1[1]) * ck / .4);
-          else { cx.lineTo(p2[0], p2[1]); var q = (ck - .4) / .6; cx.lineTo(p2[0] + (p3[0] - p2[0]) * q, p2[1] + (p3[1] - p2[1]) * q); }
-          cx.stroke(); cx.restore();
-          cx.font = font(tagPx * 1.05, 700); cx.fillStyle = INK; cx.textAlign = "center"; cx.textBaseline = "middle";
-          cx.globalAlpha = cl((t - 3.2) / .15); cx.fillText(C.done, Cx, by + br * 1.55); cx.globalAlpha = 1;
-        }
-        // confetti dots burst from the badge
-        var ct = seg(t, 3.2, 3.6);
-        if (ct > 0 && ct < 1) {
-          for (var cf = 0; cf < 18; cf++) {
-            var a2 = cf / 18 * 6.283 + .3, dist = eo(ct) * m * (.22 + .1 * (cf % 3));
-            cx.globalAlpha = 1 - ct; cx.fillStyle = [CYAN, MAG, YEL][cf % 3];
-            cx.beginPath(); cx.arc(Cx + Math.cos(a2) * dist, by + Math.sin(a2) * dist + ct * ct * m * .1, m * .012 * (1 + cf % 2), 0, 6.283); cx.fill();
-          }
-          cx.globalAlpha = 1;
-        }
-        // ---- ink circle closes over the badge, back to the start
-        var ek = eio(seg(t, 3.55, 3.88));
-        if (ek > 0) { cx.fillStyle = INK; cx.beginPath(); cx.arc(Cx, by, Math.hypot(W, H) * 1.1 * ek, 0, 6.283); cx.fill(); }
-      }
-      bars(t);
-    }
-    function frame(now) {
-      if (!run) return;
-      if (!t0) t0 = now;
-      draw(((now - t0) / 1000) % LOOP);
-      raf = requestAnimationFrame(frame);
-    }
-    if (window.ResizeObserver) new ResizeObserver(function () { if (reduce) draw(3.4); }).observe(cv);
-    return {
-      on: function () { if (reduce) { draw(3.4); return; } if (run) return; run = true; t0 = 0; raf = requestAnimationFrame(frame); },
-      off: function () { run = false; cancelAnimationFrame(raf); },
-      frame: draw
-    };
+    openBtn.addEventListener("click", open);
+    closeBtn.addEventListener("click", close);
+    document.getElementById("lbBack").addEventListener("click", close);
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !lb.hidden) close(); });
   })();
 
   /* ---------- web face: concept store, then the concept film ---------- */
