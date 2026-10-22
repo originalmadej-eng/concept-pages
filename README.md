@@ -6,5 +6,6 @@ Prices, shops and shipping terms on the pages are fictional.
 - `onitsuka/` an Onitsuka Tiger-style concept store (original shoe design, no brand marks)
 - `tanaka65/` a Tanaka 65 concept story page
 - `medicube/` scenes for a medicube Booster Pro X2 concept film (Blender, scripted), with the scripts in `medicube/tools/`
+- `card/` Woncho Chung's business card and portfolio (KO / EN / JA)
 
 If you represent a brand shown here and want a page changed or removed, open an issue in this repository.
