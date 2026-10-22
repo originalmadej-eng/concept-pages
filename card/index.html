@@ -28,7 +28,7 @@
   --mint: #00E5FF;
   --line: rgba(255, 255, 255, .09);
   --brand-navy: #1F2937; /* TheFinExpat brand, only inside its mockups */
-  --chrome: linear-gradient(135deg, #FAFAFB 0%, #A1A1AA 38%, #F4F4F5 55%, #71717A 100%);
+  --chrome: linear-gradient(135deg, #FFFFFF 0%, #C9C9D1 40%, #FFFFFF 58%, #A1A1AA 100%);
   --ab: drop-shadow(-1.5px 0 0 rgba(255, 46, 151, .75)) drop-shadow(1.5px 0 0 rgba(0, 229, 255, .75));
   --ab-hot: drop-shadow(-5px 0 0 rgba(255, 46, 151, .85)) drop-shadow(5px 0 0 rgba(0, 229, 255, .85));
 
@@ -149,13 +149,13 @@ main { position: relative; z-index: 1; }
 .face::after {
   content: ""; position: absolute; inset: 1px; border-radius: 19px; z-index: -1;
   background:
-    linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, .05) 50%, transparent 62%),
+    linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, .025) 50%, transparent 62%),
     linear-gradient(160deg, #1D1D21 0%, #0E0E10 55%, #151518 100%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12);
 }
 /* scanlines + HUD corner brackets */
 .grain { position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, .025) 0 1px, transparent 1px 3px); }
+  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, .012) 0 1px, transparent 1px 3px); }
 .grain::before, .grain::after { content: ""; position: absolute; width: 14px; height: 14px; }
 .grain::before { left: 12px; top: 12px; border-left: 1px solid rgba(0, 229, 255, .7); border-top: 1px solid rgba(0, 229, 255, .7); }
 .grain::after { right: 12px; bottom: 12px; border-right: 1px solid rgba(255, 46, 151, .7); border-bottom: 1px solid rgba(255, 46, 151, .7); }
@@ -167,15 +167,14 @@ main { position: relative; z-index: 1; }
 }
 
 /* shared face type */
-.kicker { margin: 0; font: 400 10px/1.5 var(--f-label); letter-spacing: .18em; text-transform: uppercase; color: var(--amber); }
-.f-title { margin: 0; font: 500 clamp(21px, 7cqi, 38px)/1.2 var(--f-display); letter-spacing: -.02em; text-wrap: balance;
-  background: var(--chrome); -webkit-background-clip: text; background-clip: text; color: transparent; filter: var(--ab); }
+.kicker { margin: 0; font: 700 12px/1.4 var(--f-body); letter-spacing: .14em; text-transform: uppercase; color: var(--amber); }
+.f-title { margin: 0; font: 600 clamp(22px, 7.2cqi, 38px)/1.25 var(--f-display); letter-spacing: -.02em; text-wrap: balance; color: #F4F4F5; }
 html[lang="ko"] .f-title, html[lang="ja"] .f-title { letter-spacing: 0; font-weight: 600; }
-.f-desc { margin: 0; font-size: clamp(13px, 3.8cqi, 16px); line-height: 1.6; color: var(--fg-2); text-wrap: pretty; }
+.f-desc { margin: 0; font-size: clamp(15px, 4.4cqi, 17px); line-height: 1.65; color: #C9C9D1; text-wrap: pretty; }
 .viz { flex: 1 1 auto; min-height: 0; position: relative; }
 .stats { list-style: none; margin: 0; padding: 12px 0 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .stats b { display: block; font: 500 clamp(17px, 5.6cqi, 26px)/1.2 var(--f-display); font-variant-numeric: tabular-nums; }
-.stats span { display: block; font-size: 12px; line-height: 1.4; color: var(--fg-3); }
+.stats span { display: block; font-size: 13px; line-height: 1.4; color: var(--fg-2); }
 @container (max-height: 540px) { .stats { display: none; } }
 @container (orientation: landscape) {
   .fc.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); grid-template-rows: auto auto 1fr auto; column-gap: 32px; row-gap: 12px; }
@@ -201,25 +200,25 @@ html[lang="ko"] .f-title, html[lang="ja"] .f-title { letter-spacing: 0; font-wei
 .chip::before { content: ""; position: absolute; inset: 22% 18%; border: 1px solid rgba(17, 17, 20, .25); border-radius: 3px; }
 .chip::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, .8) 50%, transparent 70%); transform: translateX(-120%); }
 .live .chip::after { animation: sheen 3.2s var(--ease) infinite; }
-.tag { font: 400 10px/1.4 var(--f-mono); color: var(--fg-3); letter-spacing: .12em; text-align: right; }
+.tag { font: 500 11px/1.4 var(--f-mono); color: var(--fg-2); letter-spacing: .1em; text-align: right; }
 .role-row { margin: 0 0 8px; display: flex; align-items: center; gap: 8px; color: var(--cyan); }
-.role { margin: 0; font: 400 clamp(10px, 3cqi, 13px)/1.5 var(--f-label); letter-spacing: .18em; text-transform: uppercase; min-height: 1.5em; }
+.role { margin: 0; font: 700 clamp(13px, 3.8cqi, 16px)/1.4 var(--f-body); letter-spacing: .12em; text-transform: uppercase; min-height: 1.4em; }
 html[lang="ko"] .role, html[lang="ja"] .role { font-family: var(--f-body); font-weight: 600; font-size: clamp(12px, 3.6cqi, 15px); letter-spacing: .08em; }
 .cursor { width: 7px; height: 13px; background: var(--cyan); flex: none; }
 .live .cursor { animation: blink 1s steps(2) infinite; }
 .name { margin: 0; font: 500 clamp(40px, 15.6cqi, 92px)/1.02 var(--f-display); letter-spacing: -.03em;
-  background: var(--chrome); -webkit-background-clip: text; background-clip: text; color: transparent; filter: var(--ab); }
+  background: var(--chrome); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .live .name { animation: jitter 6s steps(1) infinite; }
-.flipping .name, .flipping .f-title { filter: var(--ab-hot); }
-.intro { margin: 16px 0 0; font-size: clamp(13px, 3.9cqi, 17px); line-height: 1.6; color: var(--fg-2); max-width: 36ch; text-wrap: pretty; }
-.chips li { display: flex; align-items: baseline; gap: 8px; font-size: clamp(12px, 3.4cqi, 15px); line-height: 1.35; color: #D4D4D8; min-width: 0; }
+.flipping .name { filter: var(--ab-hot); }
+.intro { margin: 16px 0 0; font-size: clamp(15px, 4.4cqi, 18px); line-height: 1.65; color: #C9C9D1; max-width: 36ch; text-wrap: pretty; }
+.chips li { display: flex; align-items: baseline; gap: 8px; font-size: clamp(13px, 3.8cqi, 16px); line-height: 1.35; color: #E4E4E7; min-width: 0; }
 .chips .no { font: 500 11px/1 var(--f-mono); color: var(--amber); flex: none; }
 .tel-s { font: 500 clamp(12px, 3.4cqi, 14px)/1.4 var(--f-mono); color: var(--fg-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
 @container (max-width: 330px) {
   .chips { grid-template-columns: 1fr; gap: 4px; }
   .hint > span { display: none; }
 }
-.hint { display: inline-flex; align-items: center; gap: 8px; font: 500 12px/1.3 var(--f-mono); color: var(--fg-3); letter-spacing: .04em; text-align: right; }
+.hint { display: inline-flex; align-items: center; gap: 8px; font: 500 12px/1.3 var(--f-body); color: var(--fg-3); letter-spacing: .04em; text-align: right; }
 .hint svg { width: 16px; height: 16px; color: var(--cyan); flex: none; }
 .live .hint svg { animation: nudge 1.6s var(--ease) infinite; }
 .live .chips li { animation: rise 600ms var(--ease) both; animation-delay: calc(200ms + var(--k) * 90ms); }
@@ -239,7 +238,7 @@ html[lang="ko"] .role, html[lang="ja"] .role { font-family: var(--f-body); font-
 .node::after { content: ""; position: absolute; inset: -1px; border-radius: 50%; border: 1px solid var(--cyan); box-shadow: 0 0 16px rgba(0, 229, 255, .6), inset 0 0 12px rgba(0, 229, 255, .25); opacity: 0; }
 .steps li:nth-child(5) .node::after { border-color: var(--amber); box-shadow: 0 0 16px rgba(255, 46, 151, .6), inset 0 0 12px rgba(255, 46, 151, .25); }
 .live .node::after { animation: lit 3s linear infinite; animation-delay: calc(var(--k) * 500ms); }
-.steps .lbl { font-size: clamp(10px, 2.9cqi, 12px); line-height: 1.2; color: var(--fg-2); text-align: center; max-width: 100%; overflow-wrap: anywhere; }
+.steps .lbl { font-size: clamp(11px, 3.3cqi, 13px); line-height: 1.2; color: var(--fg-2); text-align: center; max-width: 100%; overflow-wrap: anywhere; }
 .term { flex: 1 1 auto; min-height: 72px; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 12px; background: rgba(0, 0, 0, .35); overflow: hidden; }
 .term-head { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--line); font: 500 11px/1 var(--f-mono); color: var(--fg-3); letter-spacing: .06em; text-transform: uppercase; }
 .term-head i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
@@ -257,7 +256,7 @@ html[lang="ko"] .role, html[lang="ja"] .role { font-family: var(--f-body); font-
 /* ---------- Face 2: design automation ---------- */
 .design { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; min-height: 240px; }
 .tile { position: relative; overflow: hidden; border-radius: 12px; border: 1px solid var(--line); background: var(--navy-2); min-height: 0; }
-.tile .tl { position: absolute; left: 8px; bottom: 8px; z-index: 5; padding: 4px 8px; border-radius: 6px; background: rgba(7, 7, 8, .78); font: 500 10px/1.2 var(--f-mono); color: var(--fg-2); letter-spacing: .04em; white-space: nowrap; max-width: calc(100% - 16px); overflow: hidden; text-overflow: ellipsis; }
+.tile .tl { position: absolute; left: 8px; bottom: 8px; z-index: 5; padding: 4px 8px; border-radius: 6px; background: rgba(7, 7, 8, .78); font: 600 11px/1.2 var(--f-body); color: #E4E4E7; letter-spacing: .02em; white-space: nowrap; max-width: calc(100% - 16px); overflow: hidden; text-overflow: ellipsis; }
 
 /* card news: three 4:5 slides that swipe in turn */
 .t-cn { grid-column: 2; grid-row: 1; background: radial-gradient(120% 80% at 50% 0%, #2A2A30, #111114 70%); }
@@ -305,7 +304,7 @@ html[lang="ja"] .cn-h { word-break: normal; }
 /* infographic: donut + bars on paper */
 .t-info { grid-column: 2; grid-row: 2; background: #F4F4F5; }
 .info { position: absolute; inset: 0; padding: 10px 10px 32px; display: grid; grid-template-rows: auto 1fr; gap: 6px; container-type: size; }
-.info-t { margin: 0; font: 600 10px/1.3 var(--f-body); color: #3F3F46; }
+.info-t { margin: 0; font: 600 11px/1.3 var(--f-body); color: #3F3F46; }
 .info-body { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: end; min-height: 0; }
 .donut { width: min(46cqw, 62cqh); aspect-ratio: 1; border-radius: 50%; position: relative; align-self: center;
   background: conic-gradient(var(--amber) 0 62%, #0891B2 62% 84%, #D4D4D8 84% 100%); }
@@ -418,7 +417,7 @@ html[lang="ja"] .cn-h { word-break: normal; }
 .scene video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 .scene-mc { background: #F7F2F1; }
 .scene-mc video { object-fit: cover; object-position: 50% 50%; }
-.web-cap { margin: 0; flex: none; font: 500 11px/1.4 var(--f-mono); color: var(--fg-3); letter-spacing: .04em; }
+.web-cap { margin: 0; flex: none; font: 500 13px/1.45 var(--f-body); color: var(--fg-2); }
 
 /* ---------- Face 5: contact ---------- */
 .f5 { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); grid-template-areas: "head head" "qr info" "btns btns"; grid-template-rows: auto 1fr auto; align-items: center; column-gap: 16px; }
@@ -426,11 +425,11 @@ html[lang="ja"] .cn-h { word-break: normal; }
 .qr-tile { grid-area: qr; background: #fff; border-radius: 12px; padding: 6px; aspect-ratio: 1; width: 100%; max-width: 168px; box-shadow: 0 0 0 1px rgba(255, 255, 255, .5), 0 0 24px rgba(0, 229, 255, .22); }
 .qr-tile svg { display: block; width: 100%; height: 100%; }
 .c-info { grid-area: info; min-width: 0; display: grid; gap: 4px; }
-.c-name { margin: 0; font: 500 clamp(18px, 5.6cqi, 26px)/1.25 var(--f-display); background: var(--chrome); -webkit-background-clip: text; background-clip: text; color: transparent; filter: var(--ab); }
-.c-role { margin: 0; font-size: 13px; line-height: 1.4; color: var(--cyan); }
+.c-name { margin: 0; font: 500 clamp(18px, 5.6cqi, 26px)/1.25 var(--f-display); background: var(--chrome); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.c-role { margin: 0; font-size: 14px; line-height: 1.4; color: var(--cyan); }
 .c-tel { margin: 8px 0 0; font: 500 clamp(13px, 3.9cqi, 16px)/1.4 var(--f-mono); font-variant-numeric: tabular-nums; user-select: all; -webkit-user-select: all; }
 .c-mail { margin: 2px 0 0; font: 500 clamp(12px, 3.4cqi, 14px)/1.4 var(--f-mono); color: var(--fg-2); overflow-wrap: normal; user-select: all; -webkit-user-select: all; }
-.c-qrcap { margin: 4px 0 0; font: 500 11px/1.4 var(--f-mono); color: var(--fg-3); }
+.c-qrcap { margin: 4px 0 0; font: 500 12px/1.4 var(--f-body); color: var(--fg-2); }
 .c-btns { grid-area: btns; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
@@ -587,7 +586,7 @@ html.static .under { display: none; }
             <div class="fc split">
               <p class="kicker" data-t="k1">Service 01</p>
               <h2 class="f-title" data-t="t1">AI content automation pipeline</h2>
-              <p class="f-desc" data-t="d1">I can build content automation that runs from research to Instagram and Threads posts, card images and scheduled publishing. Steps and review points are set to fit how you work.</p>
+              <p class="f-desc" data-t="d1">I automate content production, from research to posting on Instagram and Threads.</p>
               <div class="viz pipe">
                 <div class="steps-wrap">
                   <div class="flow"></div>
@@ -619,7 +618,7 @@ html.static .under { display: none; }
             <div class="fc split">
               <p class="kicker" data-t="k2">Service 02 · Marketing</p>
               <h2 class="f-title" data-t="t2">Image &amp; design automation</h2>
-              <p class="f-desc" data-t="d2">I can build tools that produce card news, infographics and motion graphics in your brand colors and fonts, in the formats and sizes you need.</p>
+              <p class="f-desc" data-t="d2">Card news, infographics and motion graphics, generated automatically in your brand style.</p>
               <div class="viz design">
                 <div class="tile t-mo">
                   <canvas class="mo-cv" id="moCv" aria-hidden="true"></canvas>
@@ -661,7 +660,7 @@ html.static .under { display: none; }
             <div class="fc split">
               <p class="kicker" data-t="k3">Service 03</p>
               <h2 class="f-title" data-t="t3">AI agent workflows</h2>
-              <p class="f-desc" data-t="d3">I can design agents that split multi-step work such as research, writing, design and upload. Run times and review steps are set to fit your needs.</p>
+              <p class="f-desc" data-t="d3">I design agents that split multi-step work and run it on schedule.</p>
               <div class="viz agents"><svg viewBox="-160 -118 320 236" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><defs><radialGradient id="sw" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="scale(130)"><stop offset="0" stop-color="#00E5FF" stop-opacity=".0"/><stop offset="1" stop-color="#00E5FF" stop-opacity=".22"/></radialGradient><linearGradient id="hubg" x1="0" y1="-1" x2="0" y2="1"><stop offset="0" stop-color="#00E5FF"/><stop offset="1" stop-color="#FF2E97"/></linearGradient></defs><path class="sweep" d="M0 0 L130 0 A130 130 0 0 1 112.6 65 Z" fill="url(#sw)"/><ellipse rx="118" ry="78" fill="none" stroke="rgba(255,255,255,.18)" stroke-dasharray="2 6"/><ellipse rx="64.9" ry="42.9" fill="none" stroke="rgba(255,255,255,.08)"/><line x1="0" y1="0" x2="0.0" y2="-78.0" stroke="rgba(255,255,255,.16)"/><line x1="0" y1="0" x2="102.2" y2="-39.0" stroke="rgba(255,255,255,.16)"/><line x1="0" y1="0" x2="102.2" y2="39.0" stroke="rgba(255,255,255,.16)"/><line x1="0" y1="0" x2="0.0" y2="78.0" stroke="rgba(255,46,151,.4)"/><line x1="0" y1="0" x2="-102.2" y2="39.0" stroke="rgba(255,255,255,.16)"/><line x1="0" y1="0" x2="-102.2" y2="-39.0" stroke="rgba(255,255,255,.16)"/><circle r="3" fill="#00E5FF"><animateMotion dur="2.4s" begin="0.0s" repeatCount="indefinite" path="M0 0L0.0 -78.0"/><animate attributeName="opacity" values="0;1;1;0" dur="2.4s" begin="0.0s" repeatCount="indefinite"/></circle><circle r="3" fill="#00E5FF"><animateMotion dur="2.4s" begin="0.4s" repeatCount="indefinite" path="M0 0L102.2 -39.0"/><animate attributeName="opacity" values="0;1;1;0" dur="2.4s" begin="0.4s" repeatCount="indefinite"/></circle><circle r="3" fill="#00E5FF"><animateMotion dur="2.4s" begin="0.8s" repeatCount="indefinite" path="M0 0L102.2 39.0"/><animate attributeName="opacity" values="0;1;1;0" dur="2.4s" begin="0.8s" repeatCount="indefinite"/></circle><circle r="3" fill="#FF2E97"><animateMotion dur="2.4s" begin="1.2s" repeatCount="indefinite" path="M0.0 78.0L0 0"/><animate attributeName="opacity" values="0;1;1;0" dur="2.4s" begin="1.2s" repeatCount="indefinite"/></circle><circle r="3" fill="#00E5FF"><animateMotion dur="2.4s" begin="1.6s" repeatCount="indefinite" path="M0 0L-102.2 39.0"/><animate attributeName="opacity" values="0;1;1;0" dur="2.4s" begin="1.6s" repeatCount="indefinite"/></circle><circle r="3" fill="#00E5FF"><animateMotion dur="2.4s" begin="2.0s" repeatCount="indefinite" path="M0 0L-102.2 -39.0"/><animate attributeName="opacity" values="0;1;1;0" dur="2.4s" begin="2.0s" repeatCount="indefinite"/></circle><circle r="2.5" fill="#FF2E97"><animateMotion dur="9s" repeatCount="indefinite" path="M118 0A118 78 0 1 1 -118 0A118 78 0 1 1 118 0"/></circle><circle class="hubring" r="30" fill="none" stroke="#00E5FF" stroke-width="1"/><circle class="hubring r2" r="30" fill="none" stroke="#00E5FF" stroke-width="1"/><circle r="30" fill="#18181B" stroke="url(#hubg)" stroke-width="1.5"/><text class="hubtxt" text-anchor="middle" dy="5">AI</text><text class="hublbl" text-anchor="middle" y="46" data-t="hub">Coordinator</text><g transform="translate(0.0 -78.0)"><circle r="8" fill="#18181B" stroke="#00E5FF" stroke-width="1.2"/><circle class="ncore" style="--k:0" r="3.5" fill="#00E5FF"/></g><text class="lbl3" x="0.0" y="-92.0" text-anchor="middle" data-t="a1">Scheduler</text><g transform="translate(102.2 -39.0)"><circle r="8" fill="#18181B" stroke="#00E5FF" stroke-width="1.2"/><circle class="ncore" style="--k:1" r="3.5" fill="#00E5FF"/></g><text class="lbl3" x="102.2" y="-53.0" text-anchor="middle" data-t="a2">Research</text><g transform="translate(102.2 39.0)"><circle r="8" fill="#18181B" stroke="#00E5FF" stroke-width="1.2"/><circle class="ncore" style="--k:2" r="3.5" fill="#00E5FF"/></g><text class="lbl3" x="102.2" y="61.0" text-anchor="middle" data-t="a3">Writer</text><g transform="translate(0.0 78.0)"><circle r="8" fill="#18181B" stroke="#FF2E97" stroke-width="1.2"/><circle class="ncore" style="--k:3" r="3.5" fill="#FF2E97"/></g><text class="lbl3 hu" x="0.0" y="100.0" text-anchor="middle" data-t="a4">Reviewer</text><g transform="translate(-102.2 39.0)"><circle r="8" fill="#18181B" stroke="#00E5FF" stroke-width="1.2"/><circle class="ncore" style="--k:4" r="3.5" fill="#00E5FF"/></g><text class="lbl3" x="-102.2" y="61.0" text-anchor="middle" data-t="a5">Publisher</text><g transform="translate(-102.2 -39.0)"><circle r="8" fill="#18181B" stroke="#00E5FF" stroke-width="1.2"/><circle class="ncore" style="--k:5" r="3.5" fill="#00E5FF"/></g><text class="lbl3" x="-102.2" y="-53.0" text-anchor="middle" data-t="a6">Designer</text></svg></div>
               <ul class="stats">
                 <li><b data-t="s3v1">Daily</b><span data-t="s3l1">scheduled runs</span></li>
@@ -677,7 +676,7 @@ html.static .under { display: none; }
             <div class="fc split">
               <p class="kicker" data-t="k4">Service 04</p>
               <h2 class="f-title" data-t="t4">Web design</h2>
-              <p class="f-desc" data-t="d4">I design and build websites, landing pages and interactive tools such as calculators, matched to your brand and easy to use on a phone.</p>
+              <p class="f-desc" data-t="d4">Websites, landing pages and interactive tools, designed and built for your brand.</p>
               <div class="viz web">
                 <div class="browser">
                   <div class="b-bar"><i></i><i></i><i></i><span class="b-url" id="bUrl">medicube Booster Pro X2 — Concept Film</span></div>
@@ -736,7 +735,7 @@ html.static .under { display: none; }
 
 <script>
 (function () {
-  var I18N = {"en": {"role": "AI Automation Architect", "intro": "From AI automation to web design, I design, build and run systems that make your work easier and faster.", "tag": "ID WC-0221 // JP", "scroll": "Scroll to flip", "c1": "Content pipelines", "c2": "Design automation", "c3": "Agent workflows", "c4": "Web design", "cap0": "Card", "cap5": "Contact", "k1": "Service 01", "t1": "AI content automation pipeline", "d1": "I can build content automation that runs from research to Instagram and Threads posts, card images and scheduled publishing. Steps and review points are set to fit how you work.", "p1": "Collect", "p2": "Select", "p3": "Write", "p4": "Visuals", "p5": "Review", "p6": "Post", "sample": "sample run", "log": [["08:00", "Collecting industry news"], ["08:02", "Topic: visa renewal fee change"], ["08:04", "Instagram carousel copy, 8 slides ✓"], ["08:05", "Threads post draft ✓"], ["08:07", "Card images 1080×1350 rendered ✓"], ["08:08", "Waiting for review → scheduled on approval"]], "s1v1": "2", "s1l1": "channels: Instagram, Threads", "s1v2": "Daily", "s1l2": "research", "s1v3": "Reviewed", "s1l3": "before posting", "k2": "Service 02 · Marketing", "t2": "Image & design automation", "d2": "I can build tools that produce card news, infographics and motion graphics in your brand colors and fonts, in the formats and sizes you need.", "tNews": "Card news 1080×1350", "tInfo": "Infographic", "mockTitle": "5 things to check before renewing your visa", "s2v1": "282", "s2l1": "curated stock photos", "s2v2": "Auto", "s2l2": "brand rule check", "s2v3": "KO·EN", "s2l3": "version per language", "k3": "Service 03", "t3": "AI agent workflows", "d3": "I can design agents that split multi-step work such as research, writing, design and upload. Run times and review steps are set to fit your needs.", "hub": "Coordinator", "a1": "Scheduler", "a2": "Research", "a3": "Writer", "a4": "Reviewer", "a5": "Publisher", "a6": "Designer", "s3v1": "Daily", "s3l1": "scheduled runs", "s3v2": "Custom", "s3l2": "steps and checkpoints", "s3v3": "Logged", "s3l3": "every step recorded", "k4": "Service 04", "t4": "Web design", "d4": "I design and build websites, landing pages and interactive tools such as calculators, matched to your brand and easy to use on a phone.", "s4v1": "30+", "s4l1": "live calculators", "s4v2": "KO·EN", "s4l2": "bilingual site in operation", "s4v3": "3D", "s4l3": "interactive scenes", "k5": "Contact", "t5": "Project inquiries", "d5": "If you want your work to run more smoothly, get in touch. I'll listen to what you need, then design and build the systems and web pages for you.", "copy": "Copy number", "copied": "Copied", "selected": "Selected", "call": "Call", "qrCap": "Scan to save contact", "case": "Example project: thefinexpat.com", "foot": "© 2026 Woncho Chung", "tMotion": "Motion graphic", "cn2": "Check the new fee", "cn3": "Prepare your documents", "cnTag": "Guide", "infoTitle": "Engagement · sample", "webCap": "Concept work · shoe store with a 3D card carousel", "webCap2": "Concept work · medicube Booster Pro X2 3D film, \"MC: Bounce Boosting\"", "mail": "Email"}, "ko": {"role": "AI 자동화 아키텍트", "intro": "AI 자동화부터 웹 디자인까지, 업무를 더 쉽고 빠르게 만드는 시스템을 직접 설계·제작하고 운영까지 맡습니다.", "tag": "ID WC-0221 // JP", "scroll": "스크롤하면 넘어갑니다", "c1": "콘텐츠 자동화", "c2": "디자인 자동화", "c3": "에이전트 워크플로우", "c4": "웹 디자인", "cap0": "명함", "cap5": "연락처", "k1": "Service 01", "t1": "AI 콘텐츠 자동화 파이프라인", "d1": "자료 수집부터 인스타그램·스레드 게시물 작성, 카드 이미지 제작, 예약 게시까지 이어지는 콘텐츠 자동화를 만들어 드립니다. 단계와 검토 방식은 운영 방식에 맞춰 조정할 수 있습니다.", "p1": "수집", "p2": "선별", "p3": "글 작성", "p4": "이미지", "p5": "검토", "p6": "게시", "sample": "실행 예시", "log": [["08:00", "업계 뉴스·자료 수집"], ["08:02", "주제 선정: 비자 갱신 수수료 변경"], ["08:04", "Instagram 캐러셀 문구 8장 ✓"], ["08:05", "Threads 게시글 초안 ✓"], ["08:07", "카드 이미지 1080×1350 생성 ✓"], ["08:08", "담당자 검토 대기 → 승인 시 예약 게시"]], "s1v1": "2", "s1l1": "채널: 인스타그램·스레드", "s1v2": "매일", "s1l2": "자료 확인", "s1v3": "검토 후", "s1l3": "게시", "k2": "Service 02 · Marketing", "t2": "이미지·디자인 자동화", "d2": "카드뉴스, 인포그래픽, 모션 그래픽을 브랜드 색과 폰트에 맞춰 자동으로 만드는 도구를 구축해 드립니다. 필요한 형식과 사이즈에 맞춰 조정할 수 있습니다.", "tNews": "카드뉴스 1080×1350", "tInfo": "인포그래픽", "mockTitle": "비자 갱신 전 꼭 확인할 5가지", "s2v1": "282", "s2l1": "장의 검수된 사진 라이브러리", "s2v2": "자동", "s2l2": "브랜드 규정 검사", "s2v3": "KO·EN", "s2l3": "언어별 버전", "k3": "Service 03", "t3": "AI 에이전트 워크플로우", "d3": "조사·작성·디자인·업로드처럼 여러 단계로 이어지는 업무를 에이전트가 나눠 처리하도록 설계해 드립니다. 실행 시간과 확인 단계는 필요에 맞게 정할 수 있습니다.", "hub": "총괄", "a1": "스케줄러", "a2": "리서치", "a3": "작성", "a4": "담당자", "a5": "발행", "a6": "디자인", "s3v1": "매일", "s3l1": "정해진 시간 자동 실행", "s3v2": "맞춤", "s3l2": "단계·확인 과정 설계", "s3v3": "기록", "s3l3": "모든 단계 작업 로그", "k4": "Service 04", "t4": "웹 디자인", "d4": "웹사이트, 랜딩페이지, 계산기 같은 인터랙티브 도구를 디자인하고 제작해 드립니다. 브랜드에 맞춘 디자인으로, 휴대폰에서도 보기 좋게 만듭니다.", "s4v1": "30+", "s4l1": "운영 중인 계산기", "s4v2": "KO·EN", "s4l2": "2개 언어 사이트 운영", "s4v3": "3D", "s4l3": "인터랙티브 연출", "k5": "Contact", "t5": "프로젝트 문의", "d5": "업무를 더 쉽게 처리하고 싶으시다면 편하게 문의해 주세요. 상황을 듣고 필요한 시스템과 웹페이지를 직접 설계·제작해 드립니다.", "copy": "번호 복사", "copied": "복사됨", "selected": "선택됨", "call": "전화", "qrCap": "스캔해서 연락처 저장", "case": "운영 사례: thefinexpat.com", "foot": "© 2026 Woncho Chung", "tMotion": "모션 그래픽", "cn2": "새 수수료 확인", "cn3": "필요 서류 준비", "cnTag": "가이드", "infoTitle": "게시물 반응 · 샘플", "webCap": "컨셉 작업 · 신발 스토어 3D 카드 캐러셀", "webCap2": "컨셉 작업 · 메디큐브 부스터 프로 X2 3D 영상 「MC: Bounce Boosting」", "mail": "이메일"}, "ja": {"role": "AI自動化アーキテクト", "intro": "AI自動化からWebデザインまで、業務をもっと簡単に、速くする仕組みを設計・制作し、運用までお引き受けします。", "tag": "ID WC-0221 // JP", "scroll": "スクロールでめくる", "c1": "コンテンツ自動化", "c2": "デザイン自動化", "c3": "エージェント設計", "c4": "Webデザイン", "cap0": "名刺", "cap5": "連絡先", "k1": "Service 01", "t1": "AIコンテンツ自動化パイプライン", "d1": "情報収集からInstagram・Threadsの投稿文、カード画像の制作、予約投稿までをつなぐコンテンツ自動化を構築できます。工程や確認の流れは運用方法に合わせて調整します。", "p1": "収集", "p2": "選定", "p3": "執筆", "p4": "画像", "p5": "確認", "p6": "投稿", "sample": "実行例", "log": [["08:00", "業界ニュース・資料を収集"], ["08:02", "テーマ: 在留更新手数料の改定"], ["08:04", "Instagramカルーセル原稿 8枚 ✓"], ["08:05", "Threads投稿の下書き ✓"], ["08:07", "カード画像 1080×1350 生成 ✓"], ["08:08", "担当者の確認待ち → 承認後に予約投稿"]], "s1v1": "2", "s1l1": "Instagram・Threads", "s1v2": "毎日", "s1l2": "情報収集", "s1v3": "確認後", "s1l3": "に投稿", "k2": "Service 02 · Marketing", "t2": "画像・デザイン自動化", "d2": "カードニュース、インフォグラフィック、モーショングラフィックをブランドの色とフォントで自動生成するツールを構築できます。必要な形式やサイズに合わせて調整します。", "tNews": "カードニュース 1080×1350", "tInfo": "インフォグラフィック", "mockTitle": "ビザ更新前に確認したい5つのこと", "s2v1": "282", "s2l1": "枚の検品済み写真ライブラリ", "s2v2": "自動", "s2l2": "ブランド規定チェック", "s2v3": "KO·EN", "s2l3": "言語別バージョン", "k3": "Service 03", "t3": "AIエージェント・ワークフロー", "d3": "調査・執筆・デザイン・入稿など複数の工程にわたる業務を、エージェントが分担して処理する仕組みを設計できます。実行時間や確認工程はご要望に合わせて設定します。", "hub": "統括", "a1": "スケジューラ", "a2": "リサーチ", "a3": "執筆", "a4": "担当者", "a5": "公開", "a6": "デザイン", "s3v1": "毎日", "s3l1": "定時に自動実行", "s3v2": "個別設計", "s3l2": "工程と確認ポイント", "s3v3": "記録", "s3l3": "全工程のログ", "k4": "Service 04", "t4": "Webデザイン", "d4": "Webサイト、ランディングページ、計算機などのインタラクティブなツールをデザイン・制作します。ブランドに合わせ、スマートフォンでも見やすく仕上げます。", "s4v1": "30+", "s4l1": "稼働中の計算機", "s4v2": "KO·EN", "s4l2": "2言語サイトを運用", "s4v3": "3D", "s4l3": "インタラクティブ演出", "k5": "Contact", "t5": "お問い合わせ", "d5": "業務をもっとスムーズに進めたいとお考えでしたら、お気軽にご相談ください。お話を伺い、必要な仕組みやWebページを設計・制作いたします。", "copy": "番号をコピー", "copied": "コピー済み", "selected": "選択済み", "call": "電話", "qrCap": "スキャンして連絡先を保存", "case": "運用事例: thefinexpat.com", "foot": "© 2026 Woncho Chung", "tMotion": "モーショングラフィック", "cn2": "新しい手数料を確認", "cn3": "必要書類を準備", "cnTag": "ガイド", "infoTitle": "投稿の反応 · サンプル", "webCap": "コンセプト作品 · 3Dカードカルーセルのシューズストア", "webCap2": "コンセプト作品 · medicube Booster Pro X2 3D映像「MC: Bounce Boosting」", "mail": "メール"}};
+  var I18N = {"en": {"role": "AI Automation Architect", "intro": "From AI automation to web design, I design, build and run systems that make your work easier and faster.", "tag": "ID WC-0221 // JP", "scroll": "Scroll to flip", "c1": "Content pipelines", "c2": "Design automation", "c3": "Agent workflows", "c4": "Web design", "cap0": "Card", "cap5": "Contact", "k1": "Service 01", "t1": "AI content automation pipeline", "d1": "I automate content production, from research to posting on Instagram and Threads.", "p1": "Collect", "p2": "Select", "p3": "Write", "p4": "Visuals", "p5": "Review", "p6": "Post", "sample": "sample run", "log": [["08:00", "Collecting industry news"], ["08:02", "Topic: visa renewal fee change"], ["08:04", "Instagram carousel copy, 8 slides ✓"], ["08:05", "Threads post draft ✓"], ["08:07", "Card images 1080×1350 rendered ✓"], ["08:08", "Waiting for review → scheduled on approval"]], "s1v1": "2", "s1l1": "channels: Instagram, Threads", "s1v2": "Daily", "s1l2": "research", "s1v3": "Reviewed", "s1l3": "before posting", "k2": "Service 02 · Marketing", "t2": "Image & design automation", "d2": "Card news, infographics and motion graphics, generated automatically in your brand style.", "tNews": "Card news 1080×1350", "tInfo": "Infographic", "mockTitle": "5 things to check before renewing your visa", "s2v1": "282", "s2l1": "curated stock photos", "s2v2": "Auto", "s2l2": "brand rule check", "s2v3": "KO·EN", "s2l3": "version per language", "k3": "Service 03", "t3": "AI agent workflows", "d3": "I design agents that split multi-step work and run it on schedule.", "hub": "Coordinator", "a1": "Scheduler", "a2": "Research", "a3": "Writer", "a4": "Reviewer", "a5": "Publisher", "a6": "Designer", "s3v1": "Daily", "s3l1": "scheduled runs", "s3v2": "Custom", "s3l2": "steps and checkpoints", "s3v3": "Logged", "s3l3": "every step recorded", "k4": "Service 04", "t4": "Web design", "d4": "Websites, landing pages and interactive tools, designed and built for your brand.", "s4v1": "30+", "s4l1": "live calculators", "s4v2": "KO·EN", "s4l2": "bilingual site in operation", "s4v3": "3D", "s4l3": "interactive scenes", "k5": "Contact", "t5": "Project inquiries", "d5": "If you want your work to run more smoothly, get in touch. I'll listen to what you need, then design and build the systems and web pages for you.", "copy": "Copy number", "copied": "Copied", "selected": "Selected", "call": "Call", "qrCap": "Scan to save contact", "case": "Example project: thefinexpat.com", "foot": "© 2026 Woncho Chung", "tMotion": "Motion graphic", "cn2": "Check the new fee", "cn3": "Prepare your documents", "cnTag": "Guide", "infoTitle": "Engagement · sample", "webCap": "Concept work · shoe store with a 3D card carousel", "webCap2": "Concept work · medicube Booster Pro X2 3D film, \"MC: Bounce Boosting\"", "mail": "Email"}, "ko": {"role": "AI 자동화 아키텍트", "intro": "AI 자동화부터 웹 디자인까지, 업무를 더 쉽고 빠르게 만드는 시스템을 직접 설계·제작하고 운영까지 맡습니다.", "tag": "ID WC-0221 // JP", "scroll": "스크롤하면 넘어갑니다", "c1": "콘텐츠 자동화", "c2": "디자인 자동화", "c3": "에이전트 워크플로우", "c4": "웹 디자인", "cap0": "명함", "cap5": "연락처", "k1": "Service 01", "t1": "AI 콘텐츠 자동화 파이프라인", "d1": "자료 수집부터 인스타그램·스레드 게시까지, 콘텐츠 제작 과정을 자동화해 드립니다.", "p1": "수집", "p2": "선별", "p3": "글 작성", "p4": "이미지", "p5": "검토", "p6": "게시", "sample": "실행 예시", "log": [["08:00", "업계 뉴스·자료 수집"], ["08:02", "주제 선정: 비자 갱신 수수료 변경"], ["08:04", "Instagram 캐러셀 문구 8장 ✓"], ["08:05", "Threads 게시글 초안 ✓"], ["08:07", "카드 이미지 1080×1350 생성 ✓"], ["08:08", "담당자 검토 대기 → 승인 시 예약 게시"]], "s1v1": "2", "s1l1": "채널: 인스타그램·스레드", "s1v2": "매일", "s1l2": "자료 확인", "s1v3": "검토 후", "s1l3": "게시", "k2": "Service 02 · Marketing", "t2": "이미지·디자인 자동화", "d2": "카드뉴스·인포그래픽·모션 그래픽을 브랜드에 맞춰 자동으로 만들어 드립니다.", "tNews": "카드뉴스 1080×1350", "tInfo": "인포그래픽", "mockTitle": "비자 갱신 전 꼭 확인할 5가지", "s2v1": "282", "s2l1": "장의 검수된 사진 라이브러리", "s2v2": "자동", "s2l2": "브랜드 규정 검사", "s2v3": "KO·EN", "s2l3": "언어별 버전", "k3": "Service 03", "t3": "AI 에이전트 워크플로우", "d3": "여러 단계로 이어지는 업무를 에이전트가 나눠 처리하도록 설계해 드립니다.", "hub": "총괄", "a1": "스케줄러", "a2": "리서치", "a3": "작성", "a4": "담당자", "a5": "발행", "a6": "디자인", "s3v1": "매일", "s3l1": "정해진 시간 자동 실행", "s3v2": "맞춤", "s3l2": "단계·확인 과정 설계", "s3v3": "기록", "s3l3": "모든 단계 작업 로그", "k4": "Service 04", "t4": "웹 디자인", "d4": "웹사이트, 랜딩페이지, 인터랙티브 도구를 브랜드에 맞춰 디자인하고 제작합니다.", "s4v1": "30+", "s4l1": "운영 중인 계산기", "s4v2": "KO·EN", "s4l2": "2개 언어 사이트 운영", "s4v3": "3D", "s4l3": "인터랙티브 연출", "k5": "Contact", "t5": "프로젝트 문의", "d5": "업무를 더 쉽게 처리하고 싶으시다면 편하게 문의해 주세요. 상황을 듣고 필요한 시스템과 웹페이지를 직접 설계·제작해 드립니다.", "copy": "번호 복사", "copied": "복사됨", "selected": "선택됨", "call": "전화", "qrCap": "스캔해서 연락처 저장", "case": "운영 사례: thefinexpat.com", "foot": "© 2026 Woncho Chung", "tMotion": "모션 그래픽", "cn2": "새 수수료 확인", "cn3": "필요 서류 준비", "cnTag": "가이드", "infoTitle": "게시물 반응 · 샘플", "webCap": "컨셉 작업 · 신발 스토어 3D 카드 캐러셀", "webCap2": "컨셉 작업 · 메디큐브 부스터 프로 X2 3D 영상 「MC: Bounce Boosting」", "mail": "이메일"}, "ja": {"role": "AI自動化アーキテクト", "intro": "AI自動化からWebデザインまで、業務をもっと簡単に、速くする仕組みを設計・制作し、運用までお引き受けします。", "tag": "ID WC-0221 // JP", "scroll": "スクロールでめくる", "c1": "コンテンツ自動化", "c2": "デザイン自動化", "c3": "エージェント設計", "c4": "Webデザイン", "cap0": "名刺", "cap5": "連絡先", "k1": "Service 01", "t1": "AIコンテンツ自動化パイプライン", "d1": "情報収集からInstagram・Threadsへの投稿まで、コンテンツ制作を自動化します。", "p1": "収集", "p2": "選定", "p3": "執筆", "p4": "画像", "p5": "確認", "p6": "投稿", "sample": "実行例", "log": [["08:00", "業界ニュース・資料を収集"], ["08:02", "テーマ: 在留更新手数料の改定"], ["08:04", "Instagramカルーセル原稿 8枚 ✓"], ["08:05", "Threads投稿の下書き ✓"], ["08:07", "カード画像 1080×1350 生成 ✓"], ["08:08", "担当者の確認待ち → 承認後に予約投稿"]], "s1v1": "2", "s1l1": "Instagram・Threads", "s1v2": "毎日", "s1l2": "情報収集", "s1v3": "確認後", "s1l3": "に投稿", "k2": "Service 02 · Marketing", "t2": "画像・デザイン自動化", "d2": "カードニュース・インフォグラフィック・モーショングラフィックをブランドに合わせて自動生成します。", "tNews": "カードニュース 1080×1350", "tInfo": "インフォグラフィック", "mockTitle": "ビザ更新前に確認したい5つのこと", "s2v1": "282", "s2l1": "枚の検品済み写真ライブラリ", "s2v2": "自動", "s2l2": "ブランド規定チェック", "s2v3": "KO·EN", "s2l3": "言語別バージョン", "k3": "Service 03", "t3": "AIエージェント・ワークフロー", "d3": "複数の工程にわたる業務を、エージェントが分担して処理する仕組みを設計します。", "hub": "統括", "a1": "スケジューラ", "a2": "リサーチ", "a3": "執筆", "a4": "担当者", "a5": "公開", "a6": "デザイン", "s3v1": "毎日", "s3l1": "定時に自動実行", "s3v2": "個別設計", "s3l2": "工程と確認ポイント", "s3v3": "記録", "s3l3": "全工程のログ", "k4": "Service 04", "t4": "Webデザイン", "d4": "Webサイト、ランディングページ、インタラクティブなツールをブランドに合わせて制作します。", "s4v1": "30+", "s4l1": "稼働中の計算機", "s4v2": "KO·EN", "s4l2": "2言語サイトを運用", "s4v3": "3D", "s4l3": "インタラクティブ演出", "k5": "Contact", "t5": "お問い合わせ", "d5": "業務をもっとスムーズに進めたいとお考えでしたら、お気軽にご相談ください。お話を伺い、必要な仕組みやWebページを設計・制作いたします。", "copy": "番号をコピー", "copied": "コピー済み", "selected": "選択済み", "call": "電話", "qrCap": "スキャンして連絡先を保存", "case": "運用事例: thefinexpat.com", "foot": "© 2026 Woncho Chung", "tMotion": "モーショングラフィック", "cn2": "新しい手数料を確認", "cn3": "必要書類を準備", "cnTag": "ガイド", "infoTitle": "投稿の反応 · サンプル", "webCap": "コンセプト作品 · 3Dカードカルーセルのシューズストア", "webCap2": "コンセプト作品 · medicube Booster Pro X2 3D映像「MC: Bounce Boosting」", "mail": "メール"}};
   var N = 6;
   var root = document.documentElement;
   var faces = Array.prototype.slice.call(document.querySelectorAll(".face"));
@@ -1189,7 +1188,7 @@ html.static .under { display: none; }
         for (var j = i + 1; j < P.length; j++) {
           var dx = P[i][0] - P[j][0], dy = P[i][1] - P[j][1], d = Math.sqrt(dx * dx + dy * dy);
           if (d < maxD) {
-            cx.strokeStyle = silver(((1 - d / maxD) * 0.16 * Math.min(P[i][2], P[j][2])).toFixed(3));
+            cx.strokeStyle = silver(((1 - d / maxD) * 0.10 * Math.min(P[i][2], P[j][2])).toFixed(3));
             cx.beginPath(); cx.moveTo(P[i][0], P[i][1]); cx.lineTo(P[j][0], P[j][1]); cx.stroke();
             edges.push([i, j]);
           }
