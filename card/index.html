@@ -112,14 +112,14 @@ main { position: relative; z-index: 1; }
   position: sticky; top: 0;
   height: 100vh; height: 100svh;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
-  padding-top: 72px; padding-bottom: 16px;
+  padding-top: 72px; padding-bottom: 24px;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
   perspective: 1600px;
   overflow: hidden;
 }
 .tilt {
-  --cw: min(calc(100vw - 32px), 420px, calc((100svh - 180px) * 55 / 91));
+  --cw: min(calc(100vw - 32px - 44px), 420px, calc((100svh - 130px) * 55 / 91));
   width: var(--cw); max-width: 100%;
   aspect-ratio: 55 / 91;
   position: relative;
@@ -216,9 +216,11 @@ html[lang="ko"] .role, html[lang="ja"] .role { font-family: var(--f-body); font-
 .tel-s { font: 500 clamp(12px, 3.4cqi, 14px)/1.4 var(--f-mono); color: var(--fg-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
 @container (max-width: 330px) {
   .chips { grid-template-columns: 1fr; gap: 4px; }
+}
+@container (max-width: 270px) {
   .hint > span { display: none; }
 }
-.hint { display: inline-flex; align-items: center; gap: 8px; font: 500 12px/1.3 var(--f-body); color: var(--fg-3); letter-spacing: .04em; text-align: right; }
+.hint { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; font: 500 12px/1.3 var(--f-body); color: var(--fg-3); letter-spacing: .04em; text-align: right; }
 .hint svg { width: 16px; height: 16px; color: var(--cyan); flex: none; }
 .live .hint svg { animation: nudge 1.6s var(--ease) infinite; }
 .live .chips li { animation: rise 600ms var(--ease) both; animation-delay: calc(200ms + var(--k) * 90ms); }
@@ -327,6 +329,7 @@ html[lang="ja"] .cn-h { word-break: normal; }
 .lb { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center;
   padding-top: max(16px, env(safe-area-inset-top, 0px)); padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.lb[hidden] { display: none; }
 .lb-back { position: absolute; inset: 0; background: rgba(5, 5, 6, .88); }
 .lb-box { position: relative; height: min(86vh, calc((100vw - 48px) * 1.25)); aspect-ratio: 4 / 5; max-width: 100%; animation: lbIn 320ms var(--ease) both; }
 .lb-box video { width: 100%; height: 100%; display: block; border-radius: 16px; background: #000; box-shadow: 0 0 0 1px rgba(255, 255, 255, .1), 0 40px 80px -20px rgba(0, 0, 0, .9); }
@@ -469,15 +472,20 @@ html[lang="ja"] .cn-h { word-break: normal; }
 }
 .live .qr-tile { animation: qrIn 700ms var(--ease) both; }
 
-/* ---------- Under the card ---------- */
-.under { display: flex; align-items: center; gap: 12px; flex: none; max-width: 100%; }
-.rail { display: flex; gap: 0; }
-.rail button { width: 32px; height: 32px; padding: 0; border: 0; background: none; cursor: pointer; display: grid; place-items: center; border-radius: 50%; }
-.rail button i { width: 8px; height: 8px; border-radius: 50%; background: var(--fg-3); transition: transform 200ms var(--ease), background-color 200ms var(--ease); }
+/* ---------- Side rail: vertical, so it reads as scrolling ---------- */
+.stage-row { display: flex; align-items: center; gap: 12px; max-width: 100%; }
+.side { flex: none; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.side-num { display: grid; justify-items: center; gap: 2px; font: 600 12px/1 var(--f-mono); font-variant-numeric: tabular-nums; }
+.side-num b { color: var(--amber); font-weight: 600; }
+.side-num span { color: var(--fg-3); font-size: 10px; }
+.rail { position: relative; display: flex; flex-direction: column; }
+.rail::before { content: ""; position: absolute; left: 50%; top: 14px; bottom: 14px; width: 1px; margin-left: -.5px; background: var(--line); }
+.rail button { position: relative; width: 28px; height: 28px; padding: 0; border: 0; background: none; cursor: pointer; display: grid; place-items: center; border-radius: 50%; }
+.rail button i { width: 8px; height: 8px; border-radius: 4px; background: var(--fg-3); transition: transform 220ms var(--ease), background-color 220ms var(--ease); }
 .rail button:hover i { background: var(--fg); }
-.rail button[aria-current="true"] i { background: var(--cyan); transform: scale(1.5); }
-.cap { margin: 0; min-width: 0; font: 500 12px/1.3 var(--f-mono); color: var(--fg-2); letter-spacing: .06em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.cap b { color: var(--amber); font-weight: 500; margin-right: 8px; font-variant-numeric: tabular-nums; }
+.rail button[aria-current="true"] i { background: var(--cyan); transform: scaleY(2.6); box-shadow: 0 0 10px rgba(0, 229, 255, .6); }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+@media (min-width: 900px) { .stage-row { gap: 32px; } }
 
 .foot { position: relative; z-index: 1; padding-block: 48px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); text-align: center; font: 500 12px/1.6 var(--f-mono); color: var(--fg-3); }
 
@@ -536,7 +544,7 @@ html.static .stage { position: relative; height: auto; display: block; padding-t
 html.static .tilt { margin: 0 auto; width: min(100%, 420px); aspect-ratio: auto; }
 html.static .card3d { position: relative; display: grid; gap: 16px; transform: none !important; }
 html.static .face { position: relative; inset: auto; transform: none !important; aspect-ratio: 55 / 91; }
-html.static .under { display: none; }
+html.static .side { display: none; }
 @media (min-width: 900px) { html.static .tilt { width: min(100%, 760px); } html.static .face { aspect-ratio: 91 / 55; } }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -566,6 +574,7 @@ html.static .under { display: none; }
 <main id="top">
   <section class="track" id="track" style="--n: 6">
     <div class="stage" id="stage">
+      <div class="stage-row">
       <div class="tilt" id="tilt">
         <div class="card3d" id="card">
 
@@ -740,10 +749,12 @@ html.static .under { display: none; }
 
         </div>
       </div>
-      <div class="under">
+      <div class="side" aria-label="Card sides">
+        <span class="side-num"><b id="capNum">01</b><span>/06</span></span>
         <nav class="rail" id="rail" aria-label="Card sides"></nav>
-        <p class="cap" id="cap" aria-live="polite"><b id="capNum">01 / 06</b><span id="capLbl"></span></p>
       </div>
+      </div>
+      <p class="sr-only" id="cap" aria-live="polite"><span id="capLbl"></span></p>
     </div>
   </section>
 </main>
@@ -949,7 +960,7 @@ html.static .under { display: none; }
     liveIdx = i;
     faces.forEach(function (f, k) { f.classList.toggle("live", k === i); });
     rail.querySelectorAll("button").forEach(function (b, k) { b.setAttribute("aria-current", k === i ? "true" : "false"); });
-    capNum.textContent = ("0" + (i + 1)) + " / 06";
+    capNum.textContent = "0" + (i + 1);
     capLbl.textContent = capLabel(i);
     var warm = i === 2 || i === 4;
     glowCool.style.opacity = warm ? "0" : "1";
