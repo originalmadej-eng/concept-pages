@@ -67,6 +67,8 @@ html.paged .foot { display: none; }
 /* Location readout, like a map app: where the camera is and which district it is flying to */
 .loc { position: fixed; z-index: 15; left: max(16px, env(safe-area-inset-left, 0px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); display: flex; align-items: flex-end; gap: 12px; pointer-events: none; opacity: 0; transform: translateY(8px); transition: opacity 600ms var(--ease), transform 600ms var(--ease); }
 .loc.on { opacity: 1; transform: none; }
+.loc.right { left: auto; right: max(16px, env(safe-area-inset-right, 0px)); flex-direction: row-reverse; }
+.loc.on.swap { opacity: 0; transition-duration: 200ms; }
 .loc-map { display: none; width: 128px; height: 128px; border-radius: 50%; }
 .loc-chip { display: flex; align-items: center; gap: 10px; padding: 8px 14px 8px 10px; border-radius: 12px; background: rgba(9, 9, 14, .66); border: 1px solid var(--line); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
 .loc-pin { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 8px; background: rgba(255, 46, 151, .14); color: var(--amber); }
@@ -1010,13 +1012,34 @@ html.static .side { display: none; }
   var lbEl = document.getElementById("lb");
   function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
   function ease(x) { return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
+  // where the card sits on each side: on desktop it alternates centre / right / left, on phones it moves up or down,
+  // and the 3D camera frames its subject in the space the card leaves free
+  var CARD_X = [0, 1, -1, 1, -1, 1], CARD_Y = [0, -1, -1, 1, 1, -1];
+  var stageRow = document.querySelector(".stage-row"), locEl = document.getElementById("loc"), shift = { x: 0, y: 0 };
+  function isWide() { return innerWidth >= 900 && innerHeight >= 560; }
+  function shiftFor(i) {
+    if (isWide()) return { x: CARD_X[i] * Math.max(0, (innerWidth - stageRow.offsetWidth) / 2 - 24), y: 0 };
+    var room = Math.max(0, (innerHeight - 96 - tilt.offsetHeight) / 2);
+    return { x: 0, y: CARD_Y[i] < 0 ? -Math.max(0, room - 10) : Math.max(0, Math.min(40, room - 56)) };
+  }
+  function lensFor(i) {   // centre of the free space beside the card, as an offset from the middle (fraction of the width)
+    var sx = shiftFor(i).x; if (!sx) return 0;
+    var free = (innerWidth - stageRow.offsetWidth) / 2 + Math.abs(sx);
+    return Math.sign(sx) * Math.max(0, 0.5 - free / (2 * innerWidth));
+  }
   function go(i) {
     i = clamp(i, 0, N - 1);
     if (i === page) return;
     var hops = Math.abs(i - page);
     page = i;
-    flip = { from: cur, to: 180 * i, t0: performance.now(), dur: 1100 + 240 * (Math.min(hops, 4) - 1) };
+    flip = { from: cur, to: 180 * i, t0: performance.now(), dur: 900 + 200 * (Math.min(hops, 4) - 1), sx: shift.x, sy: shift.y };
     prog.style.transform = "scaleX(" + (i / (N - 1)) + ")";
+    // the location readout moves to whichever corner the card leaves free
+    var right = isWide() && CARD_X[i] < 0;
+    if (locEl.classList.contains("right") !== right) {
+      locEl.classList.add("swap");
+      setTimeout(function () { locEl.classList.toggle("right", right); locEl.classList.remove("swap"); }, 240);
+    }
     if (city) city.go(i);
   }
   function step(d) {
@@ -1024,11 +1047,14 @@ html.static .side { display: none; }
     go(page + d);
   }
   function frame(now) {
+    var to = shiftFor(page);
     if (flip) {
-      var u = clamp((now - flip.t0) / flip.dur, 0, 1);
-      cur = flip.from + (flip.to - flip.from) * ease(u);
+      var u = clamp((now - flip.t0) / flip.dur, 0, 1), e = ease(u);
+      cur = flip.from + (flip.to - flip.from) * e;
+      shift.x = flip.sx + (to.x - flip.sx) * e; shift.y = flip.sy + (to.y - flip.sy) * e;
       if (u >= 1) flip = null;
-    }
+    } else { shift.x = to.x; shift.y = to.y; }
+    stageRow.style.transform = "translate(" + shift.x.toFixed(1) + "px, " + shift.y.toFixed(1) + "px)";
     bump *= 0.86; if (Math.abs(bump) < 0.05) bump = 0;
     tiltX += (aimX - tiltX) * 0.08;
     tiltY += (aimY - tiltY) * 0.08;
@@ -2258,20 +2284,22 @@ html.static .side { display: none; }
     composer.addPass(new M.OutputPass());
 
     /* ----- the route: one stop per card side, joined by a smooth path through the streets ----- */
+    // lw: how strongly the subject is framed in the space beside the card (desktop); ly: vertical framing on phones
     var STOPS = [
-      { p: [-1100, 960, 1080], t: [-80, 60, -600], lens: 0, name: "MANHATTAN · MIDTOWN" },
-      { p: [-560, 62, -640], t: [-160, 50, -640], lens: 0, name: "W 42ND ST · TIMES SQ" },
-      { p: [-2, 10, -470], t: [-28, 26, 150], lens: 0, name: "5TH AVENUE" },
-      { p: [70, 170, -150], t: [ESB.cx, 225, ESB.cz], lens: 0.3, lensY: 0.3, name: "EMPIRE STATE BUILDING" },
-      { p: [26, 372, 142], t: [-520, 170, -1300], lens: 0, lensY: 0.12, name: "ESB · 86TH FLOOR" },
-      { p: [1260, 70, -420], t: [-80, 165, -330], lens: 0.2, name: "EAST RIVER" }
+      { p: [-1100, 960, 1080], t: [-80, 60, -600], lw: 0, ly: 0, name: "MANHATTAN · MIDTOWN" },
+      { p: [-560, 62, -640], t: [-160, 50, -640], lw: 0.7, ly: 0, name: "W 42ND ST · TIMES SQ" },
+      { p: [-2, 10, -470], t: [-28, 26, 150], lw: 0.7, ly: 0, name: "5TH AVENUE" },
+      { p: [70, 170, -150], t: [ESB.cx, 225, ESB.cz], lw: 1, ly: 0.3, name: "EMPIRE STATE BUILDING" },
+      { p: [62, 385, -175], t: [ESB.cx, 345, ESB.cz], lw: 1, ly: 0.22, name: "EMPIRE STATE · SPIRE" },
+      { p: [1260, 75, -420], t: [ESB.cx, 190, ESB.cz], lw: 1, ly: 0, name: "EAST RIVER" }
     ];
+    // points in between: down into 42nd St from the Hudson, the turn onto 5th Ave, a straight crane up the tower, a pull-back over the river
     var VIAS = [
-      [[[-1500, 520, 300], [-600, 150, -640]], [[-1420, 210, -640], [-500, 100, -640]], [[-980, 100, -640], [-300, 70, -640]], [[-760, 75, -640], [-200, 55, -640]]],
-      [[[-330, 58, -642], [100, 45, -640]], [[-150, 45, -640], [60, 30, -560]], [[-10, 30, -640], [-15, 28, -300]]],
+      [[[-1500, 520, 300], [-600, 150, -640]], [[-1400, 200, -640], [-500, 100, -640]], [[-900, 85, -640], [-250, 60, -640]]],
+      [[[-330, 58, -642], [61, 40, -417]], [[-150, 45, -640], [129, 34, -284]], [[-10, 30, -640], [152, 28, -221]]],
       [[[5, 24, -320], [-40, 90, 40]], [[10, 70, -230], [-60, 170, 40]]],
-      [[[40, 220, -60], [ESB.cx, 320, ESB.cz]], [[30, 300, 50], [-260, 220, -520]]],
-      [[[320, 430, 80], [600, 300, -900]], [[820, 380, -150], [1300, 250, -500]], [[1240, 240, -360], [1300, 200, 600]]]
+      [[[66, 280, -162], [ESB.cx, 290, ESB.cz]]],
+      [[[700, 300, -330], [ESB.cx, 260, ESB.cz]]]
     ];
     var PP = [], TT = [], stopIdx = [];
     STOPS.forEach(function (s, i) {
@@ -2281,6 +2309,16 @@ html.static .side { display: none; }
     var pCurve = new THREE.CatmullRomCurve3(PP, false, "centripetal"), tCurve = new THREE.CatmullRomCurve3(TT, false, "catmullrom", 0.3);
     var NDIV = 4000, lens = pCurve.getLengths(NDIV), total = lens[NDIV];
     var stopArc = stopIdx.map(function (i) { return lens[Math.round(i / (PP.length - 1) * NDIV)] / total; });
+    // how much each leg turns (degrees): turning legs get a little more time
+    var segTurn = [];
+    for (var sk = 0; sk < STOPS.length - 1; sk++) {
+      var deg = 0, py = null;
+      for (var si = 0; si <= 120; si++) {
+        var st = pCurve.getUtoTmapping(stopArc[sk] + (stopArc[sk + 1] - stopArc[sk]) * si / 120), sf = tCurve.getPoint(st).sub(pCurve.getPoint(st)), yw = Math.atan2(sf.x, sf.z);
+        if (py !== null) { var dd = yw - py; deg += Math.abs(Math.atan2(Math.sin(dd), Math.cos(dd))) * 57.3; } py = yw;
+      }
+      segTurn.push(deg);
+    }
     function tAt(u) {   // page position (0..5, fractional between stops) -> curve parameter, constant speed between stops
       u = Math.max(0, Math.min(STOPS.length - 1, u));
       var k = Math.min(STOPS.length - 2, Math.floor(u)), s = u - k;
@@ -2293,8 +2331,9 @@ html.static .side { display: none; }
       page = i;
       els.name.textContent = STOPS[i].name; els.num.textContent = "0" + (i + 1);
       if (instant || still) { u = i; mv = null; if (still) render(performance.now()); return; }
-      var v0 = mv ? mv.vel(performance.now()) : 0, dist = segLen(Math.round(u), i), hops = Math.abs(i - u);
-      var T = Math.min(5200, Math.max(2200, 1500 + dist * 0.9)) * (hops > 1.2 ? 0.8 : 1);
+      var v0 = mv ? mv.vel(performance.now()) : 0, from = Math.round(u), dist = segLen(from, i), hops = Math.abs(i - u), turn = 0;
+      for (var q = Math.min(from, i); q < Math.max(from, i); q++) turn += segTurn[q];
+      var T = Math.min(2800, Math.max(1300, 800 + dist * 0.45 + turn * 6)) * (hops > 1.2 ? 0.85 : 1);
       var a = u, now = performance.now();
       mv = { t0: now, T: T, a: a, b: i, v0: v0,
         at: function (t) { var s = Math.min(1, (t - this.t0) / this.T), s2 = s * s, s3 = s2 * s; return (2 * s3 - 3 * s2 + 1) * this.a + (s3 - 2 * s2 + s) * this.v0 * this.T + (-2 * s3 + 3 * s2) * this.b; },
@@ -2303,7 +2342,9 @@ html.static .side { display: none; }
       els.box.classList.add("moving");
     }
     var tmpP = new V3(), tmpT = new V3(), fwd = new V3();
-    function lensAt(uu, key) { var k = Math.min(STOPS.length - 2, Math.floor(uu)), s = uu - k; var a = STOPS[k][key] || 0, b = STOPS[k + 1][key] || 0; return a + (b - a) * (s * s * (3 - 2 * s)); }
+    // framing: on desktop the page says how far the card sits to one side; the subject goes in the space left over
+    function lensOf(i, axis) { return axis === "x" ? (wide && els.lens ? els.lens(i) * STOPS[i].lw : 0) : (wide ? 0 : STOPS[i].ly); }
+    function lensAt(uu, axis) { var k = Math.min(STOPS.length - 2, Math.floor(uu)), s = uu - k, a = lensOf(k, axis), b = lensOf(k + 1, axis); return a + (b - a) * (s * s * (3 - 2 * s)); }
     function stepCam(now, dt, t) {
       if (mv) { u = mv.at(now); if (now - mv.t0 >= mv.T) { u = mv.b; mv = null; els.box.classList.remove("moving"); } }
       var tt = tAt(u);
@@ -2318,9 +2359,9 @@ html.static .side { display: none; }
       camera.position.copy(tmpP); camera.up.set(0, 1, 0); camera.lookAt(tmpT);
       // bank into turns
       var yaw = Math.atan2(fwd.x, fwd.z);
-      if (prevYaw !== null) { var dy = yaw - prevYaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); roll += (Math.max(-0.14, Math.min(0.14, -dy / Math.max(dt, 0.001) * 0.18)) - roll) * Math.min(1, dt * 3); }
+      if (prevYaw !== null) { var dy = yaw - prevYaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); roll += (Math.max(-0.05, Math.min(0.05, -dy / Math.max(dt, 0.001) * 0.08)) - roll) * Math.min(1, dt * 3); }
       prevYaw = yaw; camera.rotateZ(roll);
-      camera.setViewOffset(W, H, wide ? lensAt(u, "lens") * W : 0, wide ? 0 : lensAt(u, "lensY") * H, W, H);
+      camera.setViewOffset(W, H, lensAt(u, "x") * W, lensAt(u, "y") * H, W, H);
     }
     var hudT = 0;
     function hud(now) {
@@ -2366,7 +2407,7 @@ html.static .side { display: none; }
       var sp = mv ? prevPos.distanceTo(camera.position) / rdt : 0; prevPos.copy(camera.position);
       speed += (Math.min(1, sp / 900) - speed) * (1 - Math.exp(-rdt * 6));
       glitch = Math.max(0, glitch - rdt * 2.6);
-      grade.uniforms.uSpeed.value = speed * 0.6; grade.uniforms.uGlitch.value = glitch * glitch;
+      grade.uniforms.uSpeed.value = speed * 0.35; grade.uniforms.uGlitch.value = glitch * glitch;
       composer.render();
       hud(now);
       perf(dt);
@@ -2417,7 +2458,7 @@ html.static .side { display: none; }
     Promise.all(mods.map(function (m) { return import(m); })).then(function (r) {
       if (done) return;
       var M = { THREE: r[0], EffectComposer: r[1].EffectComposer, RenderPass: r[2].RenderPass, UnrealBloomPass: r[3].UnrealBloomPass, ShaderPass: r[4].ShaderPass, OutputPass: r[5].OutputPass, BGU: r[6] };
-      var c = makeCity(M, cv, { box: document.getElementById("loc"), name: document.getElementById("locName"), num: document.getElementById("locNum"), coord: document.getElementById("locCoord"), map: document.getElementById("locMap") });
+      var c = makeCity(M, cv, { box: document.getElementById("loc"), name: document.getElementById("locName"), num: document.getElementById("locNum"), coord: document.getElementById("locCoord"), map: document.getElementById("locMap"), lens: lensFor });
       done = true; clearTimeout(timer);
       city = c;
       document.getElementById("field").style.display = "none";
