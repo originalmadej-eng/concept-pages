@@ -1047,6 +1047,8 @@ html.static .side { display: none; }
     go(page + d);
   }
   function frame(now) {
+    if (lastFrame) frameMs += (Math.min(400, now - lastFrame) - frameMs) * 0.1;
+    lastFrame = now;
     var to = shiftFor(page);
     if (flip) {
       var u = clamp((now - flip.t0) / flip.dur, 0, 1), e = ease(u);
@@ -1069,20 +1071,23 @@ html.static .side { display: none; }
     setLive(clamp(Math.round(cur / 180), 0, N - 1));
     requestAnimationFrame(frame);
   }
-  // wheel: a gesture starts after a short pause or with a sudden jump in speed (a new swipe on top of trackpad inertia);
-  // each gesture turns one side, then the rest of it is ignored
-  var wh = { last: 0, prev: 0, armed: true, lock: 0 };
+  // wheel: one gesture turns one side. A gesture lasts until the wheel has been completely still for a moment
+  // (longer when frames are slow, since the browser then merges wheel events into bigger, uneven ones), so trackpad
+  // momentum, a hard fling or a fast wheel spin can never turn a second side. A new gesture starting less than
+  // 0.9 s after a turn is ignored as a whole.
+  var wh = { busy: false, timer: 0, lastTurn: -1e9 }, frameMs = 16, lastFrame = 0;
   function onWheel(e) {
     if (!lbEl.hidden) return;
     e.preventDefault();
-    var now = e.timeStamp || performance.now();   // input time, so a busy frame cannot split one gesture in two
     var d = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
     if (e.deltaMode === 1) d *= 16; else if (e.deltaMode === 2) d *= innerHeight;
-    var a = Math.abs(d);
-    if (now - wh.last > 180 || (a > wh.prev * 2 && a > 16)) wh.armed = true;
-    wh.last = now; wh.prev = a;
-    if (!wh.armed || now < wh.lock || a < 1) return;
-    wh.armed = false; wh.lock = now + 700;
+    var now = performance.now();
+    clearTimeout(wh.timer);
+    wh.timer = setTimeout(function () { wh.busy = false; }, Math.max(360, frameMs * 6));
+    if (wh.busy || Math.abs(d) < 1) return;
+    wh.busy = true;
+    if (now - wh.lastTurn < 900) return;
+    wh.lastTurn = now;
     step(d > 0 ? 1 : -1);
   }
   var ts = null;
